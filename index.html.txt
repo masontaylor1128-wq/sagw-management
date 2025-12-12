@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SAGW Management System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{margin:0;font-family:system-ui;}</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState, useEffect} = React;
+const e = React.createElement;
+
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('roster');
+  const [darkMode, setDarkMode] = useState(true);
+  
+  // Login
+  const [cs1, setCs1] = useState('');
+  const [cs2, setCs2] = useState('');
+  const [cs3, setCs3] = useState('');
+  const [pw1, setPw1] = useState('');
+  const [pw2, setPw2] = useState('');
+  const [pw3, setPw3] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const [roster, setRoster] = useState([]);
+  const [rosterLoading, setRosterLoading] = useState(true);
+  const [storageMode, setStorageMode] = useState('cloud'); // 'cloud' or 'local'
+  
+  useEffect(() => {
+    const loadRoster = async () => {
+      const initialRoster = [
+        {id:1, callsign:"1101", name:"Mikey", role:"Admin", rank:"Director", status:"Active", subdivisions:['SOG','Marine'], subdivisionRanks:{'SOG':'SOG Director'}, password:"AdminPass123"},
+        {id:2, callsign:"1102", name:"K. Coppett", role:"Admin", rank:"Assistant Director", status:"Active", subdivisions:['Aviation','SOG','Marine'], subdivisionRanks:{'Aviation':'Aviation Director','SOG':'SOG Assistant Director'}, password:"AdminPass123"},
+        {id:3, callsign:"1103", name:"Anthony A.", role:"Admin", rank:"Deputy Director", status:"Active", subdivisions:['Aviation','SOG','Marine'], subdivisionRanks:{'Aviation':'Aviation Assistant Director','SOG':'SOG Deputy Director'}, password:"AdminPass123"},
+        {id:4, callsign:"1104", name:"Chester M.", role:"Admin", rank:"Commissioner", status:"Active", subdivisions:['MCU','FTO','Aviation','SOG','Dispatch','Marine'], subdivisionRanks:{'MCU':'MCU Director','FTO':'FTO Director','Aviation':'Aviation Deputy Director','SOG':'SOG Lieutenant','Dispatch':'Dispatch Supervisor'}, password:"AdminPass123"},
+        {id:5, callsign:"1105", name:"Taylor M.", role:"Admin", rank:"Commissioner", status:"Active", subdivisions:['SOG','MCU','FTO','Aviation','Dispatch','K9','Marine'], subdivisionRanks:{'SOG':'SOG Operator 1','MCU':'MCU Deputy Director','FTO':'FTO Assistant Director','Aviation':'Aviation Pilot','Dispatch':'Dispatch Deputy Director','K9':'K9 Corporal'}, password:"AdminPass123"},
+        {id:7, callsign:"1107", name:"Charles", role:"Admin", rank:"Assistant Commissioner", status:"Active", subdivisions:[], password:"AdminPass123"},
+        {id:15, callsign:"1115", name:"Nas", role:"Supervisor", rank:"Captain", status:"Active", subdivisions:[], password:"SuperPass456"},
+        {id:16, callsign:"1114", name:"G. Max", role:"Supervisor", rank:"Captain", status:"Active", subdivisions:[], password:"SuperPass456"},
+        {id:18, callsign:"1118", name:"Davin Felth", role:"Supervisor", rank:"Lieutenant", status:"Active", subdivisions:[], password:"SuperPass456"},
+        {id:19, callsign:"1119", name:"R. Northcote", role:"Supervisor", rank:"Lieutenant", status:"Active", subdivisions:[], password:"SuperPass456"},
+        {id:20, callsign:"1120", name:"Don G.", role:"Supervisor", rank:"Lieutenant", status:"Active", subdivisions:[], password:"SuperPass456"},
+        {id:24, callsign:"1299", name:"Cody", role:"Ranger", rank:"Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:25, callsign:"1300", name:"B. Greenly", role:"Ranger", rank:"Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:26, callsign:"1301", name:"B. Kaeding", role:"Ranger", rank:"Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:27, callsign:"V-90", name:"Wallnut", role:"Ranger", rank:"Volunteer Corporal", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:28, callsign:"V-91", name:"Lazaro D.", role:"Ranger", rank:"Volunteer Corporal", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:29, callsign:"V-92", name:"J. Reacher (Sr.)", role:"Ranger", rank:"Volunteer Corporal", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:30, callsign:"V-147", name:"Emma", role:"Ranger", rank:"Volunteer Warden 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:31, callsign:"V-391", name:"Davis", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:32, callsign:"V-392", name:"AJ Woods", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:33, callsign:"V-393", name:"Alex B.", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:34, callsign:"V-394", name:"Carter W.", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:35, callsign:"V-395", name:"Q. Smitty", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:36, callsign:"V-396", name:"Anderson P.", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:37, callsign:"V-397", name:"Johnathan B.", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:38, callsign:"V-398", name:"Drake", role:"Ranger", rank:"Volunteer Ranger 2nd Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:39, callsign:"V-475", name:"Justin J.", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:40, callsign:"V-476", name:"Jyclops", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:41, callsign:"V-477", name:"J. Miller", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:42, callsign:"V-478", name:"U. Mejia", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:43, callsign:"V-479", name:"John", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:44, callsign:"V-480", name:"John A.", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:45, callsign:"V-481", name:"Alex B.", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:46, callsign:"V-482", name:"Delvin", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"},
+        {id:47, callsign:"V-483", name:"Q. Smitty", role:"Ranger", rank:"Volunteer Ranger 1st Class", status:"Active", subdivisions:[], password:"RangerPass789"}
+      ];
+      
+      // FORCE RESET: Clear old data and load full roster
+      console.log('🔄 Loading full SAGW roster...');
+      try {
+        localStorage.removeItem('sagw_roster_backup');
+        await window.storage.set('sagw_roster', null, true);
+      } catch(e) {
+        console.log('Clearing old data...');
+      }
+      
+      // Load the full roster
+      setRoster(initialRoster);
+      
+      // Save it
+      try {
+        localStorage.setItem('sagw_roster_backup', JSON.stringify(initialRoster));
+        await window.storage.set('sagw_roster', JSON.stringify(initialRoster), true);
+        console.log('✓ Full roster loaded: 47 personnel');
+      } catch(e) {
+        console.log('Saved to localStorage');
+      }
+      
+      setRosterLoading(false);
+    };
+    loadRoster();
+  }, []);
+  
+  useEffect(() => {
+    const saveRoster = async () => {
+      if (roster.length > 0 && !rosterLoading) {
+        // Always save to localStorage as backup
+        try {
+          localStorage.setItem('sagw_roster_backup', JSON.stringify(roster));
+          console.log('✓ Roster saved to localStorage');
+        } catch(e) {
+          console.error('localStorage save failed');
+        }
+        
+        // Try cloud storage
+        try {
+          const result = await window.storage.set('sagw_roster', JSON.stringify(roster), true);
+          if (result) console.log('✓ Roster saved to cloud');
+        } catch(e) {
+          console.log('Cloud unavailable, using localStorage backup');
+        }
+      }
+    };
+    const timeoutId = setTimeout(saveRoster, 500);
+    return () => clearTimeout(timeoutId);
+  }, [roster, rosterLoading]);
+  
+  const [addingPerson, setAddingPerson] = useState(false);
+  const [editingPerson, setEditingPerson] = useState(null);
+  const [newCallsign, setNewCallsign] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newRole, setNewRole] = useState('Ranger');
+  const [newRank, setNewRank] = useState('Ranger 1st Class');
+  const [newStatus, setNewStatus] = useState('Active');
+  const [newPassword, setNewPassword] = useState('');
+  const [selectedSubs, setSelectedSubs] = useState([]);
+  const [subdivisionRankAssignments, setSubdivisionRankAssignments] = useState({});
+  const [confirmRemove, setConfirmRemove] = useState(null);
+  const [loaStartDate, setLoaStartDate] = useState('');
+  const [loaEndDate, setLoaEndDate] = useState('');
+  const [showLoaModal, setShowLoaModal] = useState(false);
+  const [loaPersonId, setLoaPersonId] = useState(null);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [syncStatus, setSyncStatus] = useState('');
+  
+  // LOA Requests
+  const [loaRequests, setLoaRequests] = useState([]);
+  const [loaRequestsLoading, setLoaRequestsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadLoaRequests = async () => {
+      try {
+        const result = await window.storage.get('sagw_loa_requests', true);
+        setLoaRequests(JSON.parse(result.value));
+      } catch(e) {
+        setLoaRequests([]);
+      }
+      setLoaRequestsLoading(false);
+    };
+    loadLoaRequests();
+  }, []);
+  
+  useEffect(() => {
+    const saveLoaRequests = async () => {
+      if (!loaRequestsLoading && loaRequests.length >= 0) {
+        try {
+          const result = await window.storage.set('sagw_loa_requests', JSON.stringify(loaRequests), true);
+          if (result) console.log('✓ LOA saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    const timeoutId = setTimeout(saveLoaRequests, 500);
+    return () => clearTimeout(timeoutId);
+  }, [loaRequests, loaRequestsLoading]);
+  
+  const [loaReason, setLoaReason] = useState('');
+  const [loaRequestStartDate, setLoaRequestStartDate] = useState('');
+  const [loaRequestEndDate, setLoaRequestEndDate] = useState('');
+  
+  // Announcements
+  const [announcements, setAnnouncements] = useState([]);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadAnnouncements = async () => {
+      try {
+        const result = await window.storage.get('sagw_announcements', true);
+        setAnnouncements(JSON.parse(result.value));
+      } catch(e) {
+        setAnnouncements([]);
+      }
+      setAnnouncementsLoading(false);
+    };
+    loadAnnouncements();
+  }, []);
+  
+  useEffect(() => {
+    const saveAnnouncements = async () => {
+      if (!announcementsLoading && announcements.length >= 0) {
+        try {
+          const result = await window.storage.set('sagw_announcements', JSON.stringify(announcements), true);
+          if (result) console.log('✓ Announcements saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    const timeoutId = setTimeout(saveAnnouncements, 500);
+    return () => clearTimeout(timeoutId);
+  }, [announcements, announcementsLoading]);
+  
+  // Check and remove expired announcements
+  useEffect(() => {
+    const checkExpired = () => {
+      const now = new Date().getTime();
+      setAnnouncements(prev => prev.filter(a => !a.expiresAt || a.expiresAt > now));
+    };
+    checkExpired();
+    const interval = setInterval(checkExpired, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+  
+  const [newAnnouncement, setNewAnnouncement] = useState('');
+  const [announcementPostDate, setAnnouncementPostDate] = useState('');
+  const [announcementDuration, setAnnouncementDuration] = useState('');
+  const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+  
+  // Report Lock
+  const [reportsLocked, setReportsLocked] = useState(false);
+  const [reportsLockedLoading, setReportsLockedLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadReportsLocked = async () => {
+      try {
+        const result = await window.storage.get('sagw_reports_locked', true);
+        setReportsLocked(JSON.parse(result.value));
+      } catch(e) {
+        setReportsLocked(false);
+      }
+      setReportsLockedLoading(false);
+    };
+    loadReportsLocked();
+  }, []);
+  
+  useEffect(() => {
+    const saveReportsLocked = async () => {
+      if (!reportsLockedLoading) {
+        try {
+          const result = await window.storage.set('sagw_reports_locked', JSON.stringify(reportsLocked), true);
+          if (result) console.log('✓ Lock status saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    saveReportsLocked();
+  }, [reportsLocked, reportsLockedLoading]);
+  
+  // Reports data
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        const result = await window.storage.get('sagw_reports', true);
+        if (result && result.value) {
+          setReports(JSON.parse(result.value));
+        } else {
+          setReports([]);
+        }
+      } catch(e) {
+        setReports([]);
+      }
+      setReportsLoading(false);
+    };
+    loadReports();
+  }, []);
+  
+  useEffect(() => {
+    const saveReports = async () => {
+      if (!reportsLoading && reports.length >= 0) {
+        try {
+          const result = await window.storage.set('sagw_reports', JSON.stringify(reports), true);
+          if (result) console.log('✓ Reports saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    const timeoutId = setTimeout(saveReports, 500);
+    return () => clearTimeout(timeoutId);
+  }, [reports, reportsLoading]);
+  
+  const [rejectId, setRejectId] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+  
+  // FTO Reports data
+  const [ftoReports, setFtoReports] = useState([]);
+  const [ftoReportsLoading, setFtoReportsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadFtoReports = async () => {
+      try {
+        const result = await window.storage.get('sagw_fto', true);
+        if (result && result.value) {
+          setFtoReports(JSON.parse(result.value));
+        } else {
+          setFtoReports([]);
+        }
+      } catch(e) {
+        setFtoReports([]);
+      }
+      setFtoReportsLoading(false);
+    };
+    loadFtoReports();
+  }, []);
+  
+  useEffect(() => {
+    const saveFtoReports = async () => {
+      if (!ftoReportsLoading) {
+        try {
+          const result = await window.storage.set('sagw_fto', JSON.stringify(ftoReports), true);
+          if (result) console.log('✓ FTO saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    saveFtoReports();
+  }, [ftoReports, ftoReportsLoading]);
+  
+  // Template states
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [newReportTitle, setNewReportTitle] = useState('');
+  const [newReportDetails, setNewReportDetails] = useState('');
+  
+  // Strikes data
+  const [strikes, setStrikes] = useState([]);
+  const [strikesLoading, setStrikesLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadStrikes = async () => {
+      try {
+        const result = await window.storage.get('sagw_strikes', true);
+        setStrikes(JSON.parse(result.value));
+      } catch(e) {
+        setStrikes([]);
+      }
+      setStrikesLoading(false);
+    };
+    loadStrikes();
+  }, []);
+  
+  useEffect(() => {
+    const saveStrikes = async () => {
+      if (!strikesLoading) {
+        try {
+          const result = await window.storage.set('sagw_strikes', JSON.stringify(strikes), true);
+          if (result) console.log('✓ Strikes saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    saveStrikes();
+  }, [strikes, strikesLoading]);
+  
+  const [strikeCallsign, setStrikeCallsign] = useState('');
+  const [strikeReason, setStrikeReason] = useState('');
+  const [strikeDetails, setStrikeDetails] = useState('');
+  const [strikeSeverity, setStrikeSeverity] = useState('minor');
+  const [strikeType, setStrikeType] = useState('discipline');
+  const [selectedStrikeTemplate, setSelectedStrikeTemplate] = useState(null);
+  const [confirmDeleteStrike, setConfirmDeleteStrike] = useState(null);
+  
+  const strikeTemplates = [
+    {
+      id: 1,
+      name: 'Verbal Warning Notice',
+      type: 'verbal-warning',
+      template: `Verbal Warning Notice
+
+To: @(Warden Name) | <DiscordID>
+Date: (MM/DD/YYYY)
+Subject: Verbal Warning – (Brief Incident Title)
+
+⸻
+
+SUMMARY
+On (Insert Date), @(Warden Name) was observed during an incident at (Location) involving (brief description of behavior or action). This conduct raised concerns regarding (relevant issue—e.g., policy deviation, procedural oversight, miscommunication, or improper judgment).
+
+During the follow-up discussion, the Warden provided the following explanation: (Summarize warden's response or reasoning). This clarification established (warden's understanding, lack of intent, acknowledgment of error, etc.), and expectations were reinforced to ensure continued adherence to departmental standards moving forward.
+
+⸻
+
+ACTION TAKEN
+This notice serves as formal documentation of the verbal warning issued on the date above. No additional disciplinary action is required at this time. The warden was reminded of (specific SOP, policy, or procedural requirement) and advised to exercise improved judgment to prevent similar concerns in the future.
+
+This notice is intended as a corrective measure to reinforce SAGW's operational standards and maintain professionalism across all divisions.
+
+⸻
+
+APPEAL PROCESS
+If you wish to appeal this verbal warning, you must open an SAGW Application Ticket within 48 hours of receiving this notice. Once submitted, your appeal will be reviewed and decided by the SAGW Leadership Team (01–03).
+
+The Leadership Team's decision is final and concludes the appeal process.
+
+IMPORTANT NOTICE
+This verbal warning will be documented in your personnel performance record. While it does not constitute a strike, repeated issues of a similar nature may influence future evaluations, disciplinary decisions, or eligibility for advancement.
+
+Signed,
+@(Issuing Supervisor)
+San Andreas Game Warden
+
+Reviewed & Validated By:
+@(Reviewing Authority)
+San Andreas Game Warden
+
+Approved By:
+@(Approving Authority)
+San Andreas Game Warden`
+    },
+    {
+      id: 2,
+      name: 'Discipline Notice (1-3 Strikes)',
+      type: 'discipline',
+      template: `Discipline Notice
+
+To: @(recipient) | <DiscordID>
+Date: (MM/DD/YYYY)
+Subject: Disciplinary Action for (brief reason)
+
+⸻
+
+SUMMARY
+On (date) at approximately (time), the following incident occurred: (Provide a concise, factual description detailing relevant context, locations, actions taken by the warden, and any contributing factors.)
+
+This incident was reviewed by Administration and Command Staff to determine compliance with SAGW operational expectations and policy.
+
+VIOLATIONS
+The following violations were identified:
+* §(Relevant SOP Section)
+
+Additional concerns or repeated patterns of behavior may be noted in the warden's performance record as applicable.
+
+⸻
+
+ACTIONS TAKEN
+As a result of the violations listed above, (callsign) is hereby issued (1–3 strike/written warning) consistent with SAGW disciplinary policy. This action will be recorded in the warden's disciplinary file.
+
+You are expected to take this matter seriously, review the SAGW SOP in full, and demonstrate improved judgment and adherence to departmental standards moving forward.
+
+Further violations may result in escalated disciplinary measures, up to and including suspension or termination.
+
+All supporting evidence, including video footage, logs, statements, and related documentation, can be provided upon formal request.
+
+⸻
+
+APPEAL PROCESS
+If you wish to appeal this disciplinary action, you must open an SAGW Application Ticket within 48 hours of receiving this notice. Your appeal will be reviewed and decided by the SAGW Leadership Team (01–03).
+
+The Leadership Team's decision is final and concludes the appeals process.
+
+IMPORTANT NOTICE
+This disciplinary action will become part of your official personnel file. Future evaluations, including considerations for promotion, subdivision placement, or continued service, may reflect this action and weigh it accordingly.
+
+Signed,
+@(yourself)
+San Andreas Game Warden
+
+Reviewed & Validated By:
+<@ReviewingAuthority>
+San Andreas Game Warden
+
+Approved By:
+<@ApprovingAuthority>
+San Andreas Game Warden`
+    },
+    {
+      id: 3,
+      name: 'Termination Notice (3 Strikes)',
+      type: 'termination',
+      template: `Termination Notice
+
+To: <@UserID> | <DISCORD USER>
+Date Issued: [MM/DD/YYYY]
+Subject: Termination of Membership
+
+Dear [Name],
+
+Following the disciplinary action issued on [Date] for violating [SOP Section(s) and Description], and after a formal administrative review of your conduct during the incident occurring on [Date] at approximately [Time] [Time Zone], your actions were found to be in direct violation of departmental standards and professional expectations. Specifically: [Insert concise 1–2 sentence summary of misconduct]
+
+In accordance with the San Andreas Game Warden disciplinary framework, the accumulation of three disciplinary strikes results in immediate termination, effective [Effective Date].
+
+This decision reflects SAGW's obligation to maintain accountability, operational integrity, and consistent professional standards across all divisions. All SAGW members are expected to uphold these standards without exception.
+
+Supporting documentation, including reports, recordings, and relevant evidence, may be provided upon formal request.
+
+⸻
+
+Immediate Requirements
+The following actions are mandatory and must be completed immediately:
+
+• Remove all SAGW callsigns, ranks, badges, and identifiers from your Discord profile.
+• Remove all SAGW uniforms, vehicles, equipment, and accessories from your FiveM character.
+• Cease all patrol activity under SAGW authority.
+• Do not patrol within SAGW jurisdiction or represent yourself as SAGW personnel in any capacity.
+
+APPEAL PROCESS:
+If you wish to appeal this termination, you must open an SAGW Application Ticket within 48 hours of receiving this notice. Your appeal will be reviewed and decided by the SAGW Leadership Team (01–03).
+
+Their decision is final and concludes the appeals process.
+
+IMPORTANT NOTICE:
+This termination will be entered into your permanent disciplinary file. Future applications to law enforcement or emergency service departments within this jurisdiction may reflect this action.
+
+Signed,
+<@SigningAuthority>
+San Andreas Game Warden
+
+Reviewed & Validated By:
+<@ReviewingAuthority>
+San Andreas Game Warden
+
+Approved By:
+<@ApprovingAuthority>
+San Andreas Game Warden`
+    },
+    {
+      id: 4,
+      name: 'Blacklist Notice',
+      type: 'blacklist',
+      template: `Blacklist Notice
+
+To: <@UserID> | <DiscordUser>
+Date: [Insert Date, e.g., MM/DD/YYYY]
+Subject: [Duration] Blacklist from San Andreas Game Warden
+
+SUMMARY
+[Individual/Username] ([UserID]) is hereby issued a [duration] blacklist from applying to SAGW. This action has been implemented following a review of conduct indicating [specific reason(s) — e.g., repeated department hopping, prior disciplinary concerns, failure to follow instructions, policy violations, or other unprofessional behavior].
+
+[Insert brief elaboration to maintain clarity and professionalism—e.g., "This pattern of conduct demonstrates inconsistency and a lack of reliability, which does not align with the standards and expectations upheld by SAGW."]
+
+This blacklist is effective immediately as of [MM/DD/YYYY]. Upon completion of the [duration] period, the individual may reapply. Any future application will be subject to a full review of their conduct and current standing with relevant departments or entities.
+
+Supporting documentation or evidence may be provided upon formal request.
+
+⸻
+
+APPEAL PROCESS
+If you wish to appeal this blacklist, you must open an SAGW Application Ticket within 48 hours of receiving this notice. Your appeal will be reviewed and decided by the SAGW Leadership Team (01–03).
+
+The Leadership Team's decision is final and concludes the appeals process.
+
+IMPORTANT NOTICE
+This blacklist will be entered into your administrative file. Future applications to law enforcement or emergency services departments within this jurisdiction may reflect this action and may be considered during their evaluation process.
+
+Signed,
+<@SigningAuthorityID>
+San Andreas Game Warden
+
+Reviewed & Validated By:
+<@ReviewingAuthority>
+San Andreas Game Warden
+
+Approved By:
+<@ApprovingAuthority>
+San Andreas Game Warden`
+    }
+  ];
+  
+  const generalReportTemplates = [
+    {id:201, name:"SAGW Arrest Report", category:"General", template:"SAGW Arrest Report\n\nIncident Basics\nCAD Record ID:\nDate/Time of Arrest:\nLocation: (Postal Code, Direction, Road Name)\n\nEnvironment\nHabitat/Environment Type: Woodland/Wetland/Grassland/Urban Interface/Agricultural/Other:\nEnvironmental Notes: (weather, water conditions, wildlife activity, damage observed, etc.)\n\nPersonnel\nArresting Warden:\nAdditional Officers (Dept/Name/Badge/Role):\n\nSuspect\nSuspect Name:\nCharges & Violations:\n\nIncident Narrative:\n(clear, chronological summary – what led to contact, suspect actions, violations, arrest process, evidence, etc.)\n\nMCU Follow-Up Required? Y/N\n\nSigned, @self\nSan Andreas Game Warden"},
+    {id:202, name:"SAGW Citation Report", category:"General", template:"SAGW Citation Report\n\nIncident Basics\nCAD Record ID:\nDate/Time of Infraction:\nLocation: (Postal Code, Direction, Road Name)\n\nEnvironment\nHabitat/Environment Type: Woodland/Wetland/Grassland/Riparian Zone/Open for Water/Urban Interface/Agricultural/Other:\nEnvironmental Notes: (weather, habitat impact, wildlife disturbance, etc.)\n\nPersonnel\nCiting Warden:\nAdditional Personnel Present: (Dept/Name/Callsign/Role)\n\nCited Person\nFull Name:\nAddress:\n\nVehicle (if applicable)\nMake & Model:\nLicense Plate:\nColor:\nVehicle Condition/Habitat Impact Notes: (off-road tracks, vegetation damage, mud on tires, etc.)\n\nInfractions/Charges:\n\nIncident Narrative:\n(brief, chronological – what was observed, contact, violation details, warnings issued, etc.)\n\nSigned, @self\nSan Andreas Game Warden"},
+    {id:203, name:"SAGW Weapon Discharge Report", category:"General", template:"SAGW WARDEN-INVOLVED WEAPON DISCHARGE REPORT\n\nIncident Basics\nDate/Time:\nLocation: (Postal Code, Direction, Road Name)\n\nEnvironment\nHabitat Type: Open Water/Woodland/Wetland/Grassland/Riparian/Urban Interface/Other:\nEnvironmental Details (weather, visibility, terrain, lighting, etc.):\n\nWarden(s) Who Fired\nWarden Name:\nCallsign:\nWeapon:\nTotal Shots Fired By Wardens:\n\nSuspect(s)\nName(s):\nWeapon(s) Present:\nStatus: Deceased/In Custody/At Large\n\nNarrative Summary:\n(chronological events, justification, outcome)\n\nWitnesses\nPresent? Yes/No\nNames (if yes):\nWitness Statements:\n\nActions Taken\nMedical Called: Y/N\nCoroner Called: Y/N\nSupervisor Notified: Y/N\nWeapon(s) Cleared & Secured: Y/N\n\nAssisting Personnel (Dept/Name/Callsign/Role):\n\nSigned, @self\nSupervisor: @71\nSan Andreas Game Warden"},
+    {id:204, name:"SAGW Pursuit Report", category:"General", template:"SAGW Pursuit Report\n\nIncident Basics\nDate/Time:\n\nUnits Involved\nPrimary Unit:\nSecondary Units:\n\nSuspect & Vehicle\nSuspect Name:\nSuspect Vehicle (Make/Model/Color/LP):\n\nPursuit Route\nStart: (Postal/Direction/Name)\nEnd: (Postal/Direction/Name)\nReason for Pursuit: (Environmental/Wildlife Offense/Moderate Offense)\n\nSensitive Areas & Wildlife Impact\nSensitive Areas Impacted:\nWildlife Disturbed/Endangered: Yes/No\nDetails:\n\nTactics Used\nSpike Strips/PIT/Boxing/Other:\nOther Agencies Notified: Y/N\n\nNarrative Summary:\n(brief chronological)\n\nSigned, @self\nSan Andreas Game Warden"},
+    {id:205, name:"SAGW Incident Report", category:"General", template:"SAGW Incident Report\n\nIncident Basics\nDate/Time:\nLocation: (Postal/Direction/Road Name)\n\nUnits Involved\nPrimary:\nSecondary Units:\n\nIncident Type: (Major Environmental Violation, Warden-Involved Crash, Officer Hostage/Assault, Pursuit-Related Incident, Structure Fire on WMA, etc.)\n\nEnvironment\nHabitat: Woodland/Wetland/Grassland/Riparian/Open Water/Urban Interface/Other:\nSensitive Areas Affected: <100 ft Waterway/Critical Habitat/Protected Vegetation/Riparian Buffer/None Observed\nImpact/Damage: (environmental, vehicle, injuries)\n\nNarrative Summary:\n(concise chronological)\n\nSigned, @self\nSan Andreas Game Warden"},
+    {id:206, name:"SAGW Call to Service Report", category:"General", template:"SAGW Call to Service Report\n\nIncident Basics\nDate/Time:\nLocation: (Postal Code/Direction/Road)\nEnvironment Type: Forest/Wetland/Grassland/Waterway/Park/Mountain/Urban Interface/Other:\n\nCall Details\nActivity Type: Wildlife Assist/Public Contact/Safety Check/Environmental Observation/Other:\nReason for Response:\n\nActions & Observations\nActions Taken:\nWildlife Observed/Interacted With:\nEnvironmental Conditions Noted (litter, damage, hazards):\nPreventive Measures Taken (warnings, cleanup, etc.):\n\nNarrative Summary:\n(brief chronological)\n\nSigned, @self\nSan Andreas Game Warden"}
+  ];
+
+  const subdivisionTemplates = [
+    {id:101, name:"K9 Deployment Report", subdivision:"K9", template:"K9 DEPLOYMENT REPORT\nAgency: San Andreas Game Warden Division\nReport Date:\nCase Number:\nReporting Officer:\nK9 Handler:\nK9 Name:\nLocation:\nDate & Time of Deployment:\n\nREASON FOR DEPLOYMENT\n\nDEPLOYMENT SUMMARY\n\nRESULTS & OUTCOME\nK9 Performance:\nEvidence Found:\nArrests Made:\n\nREPORTING OFFICER SIGNATURE"},
+    {id:102, name:"Aviation Bureau Report", subdivision:"Aviation", template:"Game Warden Aviation Bureau Report\n\nOperation/Incident Information\nOperation Name:\nIncident Number:\nPurpose and Scope:\n\nFlight Details\nDate of Flight:\nTakeoff Time:\nLanding Time:\nPrimary Area of Operation:\n\nAircraft and Crew Information\nAircraft Type and Registration:\nPilot Name and Rank:\n\nSurvey Observations\nWildlife Observed:\nIllegal Activity Detected:\n\nResponse and Coordination\nActions Taken:\n\nMission Summary"},
+    {id:103, name:"SOG Activation Report", subdivision:"SOG", template:"SOG ACTIVATION REPORT\n\nINCIDENT SUMMARY\nDate and Time:\nLocation:\nType of Incident:\nRequesting Authority:\n\nOPERATIONAL TEAM\nTeam Commander:\nPersonnel:\n\nDEPLOYMENT DETAILS\nOverview of SOG Actions:\nResult:\n\nREPORT SUBMISSION\nPrepared By:"},
+    {id:104, name:"Dispatcher Monthly Report", subdivision:"Dispatch", template:"Dispatcher Information\nName:\nCall Sign:\nReporting Month:\n\nSummary\nTotal Hours Worked:\nSOP Adherence (90%+ required):\nCAD Accuracy (97%+ required):\n\nCertification\nI certify that the information provided is accurate.\n\nSigned:"},
+    {id:105, name:"Marine Activation Report", subdivision:"Marine", template:"SAGW MARINE ACTIVATION REPORT\n\nIncident Basics\nDate/Time:\nLocation:\nIncident Type:\n\nMarine Team\nMission Commander:\nTeam Members:\n\nMission Summary:\n\nKey Events:\nOutcome & Results:\n\nSigned:"},
+    {id:106, name:"MCU - Start of Investigation", subdivision:"MCU", template:"MCU Start of Investigation Report\n\nDate of Report:\nInvestigation Case Number:\nLead Investigator:\nSection:\nCase Supervisor (CS):\n\nInvestigation Details\nDate/Time Initiated:\nNature of the Case:\nLocation:\n\nPreliminary Assessment\nInitial Findings:\nSuspects:\nEvidence:\n\nSigned:"},
+    {id:107, name:"MCU - Investigation Update", subdivision:"MCU", template:"MCU Investigation Update Report\n\nCase Number:\nUpdate #:\nLead Investigator:\n\nProgress Since Last Update\nActions Completed:\nKey Findings:\n\nNext Steps\nPlanned Actions:\n\nSigned:"},
+    {id:108, name:"FTO Evaluation Report", subdivision:"FTO", template:"SAGW FTO Evaluation Report\n\nFTO Information\nFTO Name:\nFTO Rank:\nDate/Time:\n\nRanger Information\nRanger Name:\nPositive Tallies:\nNegative Tallies:\n\nFTO Checklist\n*Mark with P for Pass, X for Fail.*\nUniform Appearance:\nVehicle Appearance:\nDriving:\nRadio Etiquette:\nSOP Knowledge:\n\nPatrol Notes\n\nEvaluation Outcome\n\nSigned:"}
+  ];
+  
+  // MCU Cases data
+  const [mcuCases, setMcuCases] = useState([]);
+  const [mcuCasesLoading, setMcuCasesLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadMcuCases = async () => {
+      try {
+        const result = await window.storage.get('sagw_mcu', true);
+        if (result && result.value) {
+          setMcuCases(JSON.parse(result.value));
+        } else {
+          setMcuCases([]);
+        }
+      } catch(e) {
+        setMcuCases([]);
+      }
+      setMcuCasesLoading(false);
+    };
+    loadMcuCases();
+  }, []);
+  
+  useEffect(() => {
+    const saveMcuCases = async () => {
+      if (!mcuCasesLoading) {
+        try {
+          const result = await window.storage.set('sagw_mcu', JSON.stringify(mcuCases), true);
+          if (result) console.log('✓ MCU saved');
+        } catch(e) {
+          console.error('Save failed, using memory only');
+        }
+      }
+    };
+    saveMcuCases();
+  }, [mcuCases, mcuCasesLoading]);
+  
+  const mcuSections = ['Wildlife Crimes', 'Farm Crimes', 'Homicide', 'Fire Investigations', 'Missing Persons', 'Environmental Crimes'];
+  
+  const subdivisions = ['K9', 'Aviation', 'SOG', 'Dispatch', 'MCU', 'Marine', 'FTO'];
+  const adminRanks = ['Director', 'Assistant Director', 'Deputy Director', 'Commissioner', 'Assistant Commissioner', 'Deputy Commissioner'];
+  const supervisorRanks = ['Captain', 'Lieutenant', 'Sergeant', 'Corporal'];
+  const rangerRanks = ['Senior Warden', 'Warden 2nd Class', 'Warden 1st Class', 'Ranger 2nd Class', 'Ranger 1st Class', 'Volunteer Corporal', 'Volunteer Warden 2nd Class', 'Volunteer Ranger 2nd Class', 'Volunteer Ranger 1st Class'];
+  
+  const subdivisionRanks = {
+    'K9': ['K9 Director', 'K9 Commander', 'K9 Captain', 'K9 Lieutenant', 'K9 Sergeant', 'K9 Corporal', 'K9 Operator 1', 'K9 Operator 2', 'K9 Operator 3', 'K9 Trainee'],
+    'Aviation': ['Aviation Director', 'Aviation Assistant Director', 'Aviation Deputy Director', 'Aviation Major', 'Aviation Captain', 'Aviation Lieutenant', 'Aviation Sergeant', 'Aviation Corporal', 'Aviation Senior Pilot', 'Aviation Pilot', 'Aviation Flight Officer', 'Aviation Trainee'],
+    'SOG': ['SOG Director', 'SOG Assistant Director', 'SOG Deputy Director', 'SOG Major', 'SOG Lieutenant', 'SOG Sergeant', 'SOG Corporal', 'SOG Operator 1', 'SOG Operator 2', 'SOG Operator 3', 'SOG Certified', 'SOG Trainee'],
+    'Dispatch': ['Dispatch Director', 'Dispatch Assistant Director', 'Dispatch Deputy Director', 'Dispatch Supervisor', 'Dispatcher', 'Dispatch Trainee'],
+    'MCU': ['MCU Director', 'MCU Assistant Director', 'MCU Deputy Director', 'MCU Major', 'MCU Captain', 'MCU Team Lead', 'MCU Lieutenant', 'MCU Sergeant', 'MCU Corporal', 'MCU Specialist', 'MCU Investigator 2', 'MCU Investigator 1', 'MCU Special Agent Assistant', 'MCU Trainee'],
+    'Marine': null,
+    'FTO': ['FTO Director', 'FTO Assistant Director', 'FTO Deputy Director', 'Senior FTO', 'FTO']
+  };
+  
+  const adminCS = ['1108','1107','1106','1105','1104','1103','1102','1101'];
+  const superCS = ['1128','1127','1126','1125','1124','1123','1122','1121','1119','1118','1117','1116','1115','1114','1113','1112','1111','1110','1109'];
+  const rangerCS = [
+    ...Array.from({length:235}, (_,i) => String(1363-i)),
+    ...Array.from({length:432}, (_,i) => 'V-' + String(522-i))
+  ];
+  
+  const getRanks = (role) => {
+    if (role === 'Admin') return adminRanks;
+    if (role === 'Supervisor') return supervisorRanks;
+    return rangerRanks;
+  };
+  
+  const handleLogin = async () => {
+    setError('');
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 500));
+    
+    let role = null, callsign = '';
+    if (cs1 && pw1 && !cs2 && !cs3) {
+      const adminUser = roster.find(r => r.callsign === cs1 && r.role === 'Admin');
+      if (adminUser && adminUser.password && adminUser.password.trim() === pw1.trim()) { role = 'admin'; callsign = cs1; }
+      else { setError('Invalid admin credentials - Found: ' + (adminUser ? 'User exists, pw check failed' : 'User not found')); setLoading(false); return; }
+    } else if (!cs1 && cs2 && pw2 && !cs3) {
+      const superUser = roster.find(r => r.callsign === cs2 && r.role === 'Supervisor');
+      if (superUser && superUser.password && superUser.password.trim() === pw2.trim()) { role = 'supervisor'; callsign = cs2; }
+      else { setError('Invalid supervisor credentials'); setLoading(false); return; }
+    } else if (!cs1 && !cs2 && cs3 && pw3) {
+      const rangerUser = roster.find(r => r.callsign === cs3 && r.role === 'Ranger');
+      if (rangerUser && rangerUser.password && rangerUser.password.trim() === pw3.trim()) { role = 'ranger'; callsign = cs3; }
+      else { setError('Invalid ranger credentials'); setLoading(false); return; }
+    } else { setError('Use ONE section only'); setLoading(false); return; }
+    
+    const rosterEntry = roster.find(r => r.callsign === callsign);
+    if (!rosterEntry || !rosterEntry.name || !rosterEntry.name.trim()) {
+      setError('Callsign not in roster');
+      setLoading(false);
+      return;
+    }
+    
+    setUser({callsign, role});
+    setLoading(false);
+  };
+  
+  const toggleSub = (sub) => {
+    setSelectedSubs(prev => prev.includes(sub) ? prev.filter(s => s !== sub) : [...prev, sub]);
+  };
+  
+  const addPerson = () => {
+    console.log('Add Person clicked');
+    console.log('Callsign:', newCallsign);
+    console.log('Name:', newName);
+    if (!newCallsign.trim() || !newName.trim()) {
+      console.log('Missing required fields - returning');
+      return;
+    }
+    
+    // Set default password based on role if not provided
+    let finalPassword = newPassword.trim();
+    if (!finalPassword) {
+      if (newRole === 'Admin') finalPassword = 'AdminPass123';
+      else if (newRole === 'Supervisor') finalPassword = 'SuperPass456';
+      else finalPassword = 'RangerPass789';
+    }
+    
+    console.log('Adding person to roster');
+    setRoster([...roster, {
+      id: Date.now(),
+      callsign: newCallsign.trim(),
+      name: newName.trim(),
+      role: newRole,
+      rank: newRank,
+      status: newStatus,
+      subdivisions: [...selectedSubs],
+      subdivisionRanks: {...subdivisionRankAssignments},
+      password: finalPassword
+    }]);
+    console.log('Person added, resetting form');
+    resetForm();
+  };
+  
+  const updatePerson = () => {
+    if (!newCallsign.trim() || !newName.trim()) return;
+    setRoster(roster.map(p => p.id === editingPerson ? {
+      ...p,
+      callsign: newCallsign.trim(),
+      name: newName.trim(),
+      role: newRole,
+      rank: newRank,
+      status: newStatus,
+      subdivisions: [...selectedSubs],
+      subdivisionRanks: {...subdivisionRankAssignments},
+      password: newPassword.trim() ? newPassword.trim() : (newRole === 'Admin' ? 'AdminPass123' : (newRole === 'Supervisor' ? 'SuperPass456' : p.password))
+    } : p));
+    resetForm();
+  };
+  
+  const removePerson = (id) => {
+    setConfirmRemove(id);
+  };
+  
+  const confirmRemovePerson = () => {
+    setRoster(roster.filter(p => p.id !== confirmRemove));
+    setConfirmRemove(null);
+  };
+  
+  const editPerson = (person) => {
+    setEditingPerson(person.id);
+    setNewCallsign(person.callsign);
+    setNewName(person.name);
+    setNewRole(person.role);
+    setNewRank(person.rank || rangerRanks[0]);
+    setNewStatus(person.status);
+    setNewPassword('');
+    setSelectedSubs([...person.subdivisions]);
+    setSubdivisionRankAssignments(person.subdivisionRanks || {});
+    setAddingPerson(true);
+  };
+  
+  const resetForm = () => {
+    setAddingPerson(false);
+    setEditingPerson(null);
+    setNewCallsign('');
+    setNewName('');
+    setNewRole('Ranger');
+    setNewRank('Ranger 1st Class');
+    setNewStatus('Active');
+    setNewPassword('');
+    setSelectedSubs([]);
+    setSubdivisionRankAssignments({});
+  };
+  
+  const approve = (id) => {
+    setReports(reports.map(r => r.id === id ? {...r, status:'approved', rejectionReason:null} : r));
+  };
+  
+  const openReject = (id) => {
+    setRejectId(id);
+    setRejectReason('');
+    setCustomReason('');
+  };
+  
+  const confirmReject = () => {
+    if (!rejectReason || (rejectReason === 'other' && !customReason.trim())) return;
+    const reason = rejectReason === 'other' ? customReason : rejectReason;
+    setReports(reports.map(r => r.id === rejectId ? {...r, status:'rejected', rejectionReason:reason} : r));
+    setRejectId(null);
+    setRejectReason('');
+    setCustomReason('');
+  };
+  
+  const approveFto = (id) => {
+    setFtoReports(ftoReports.map(r => r.id === id ? {...r, status:'approved', rejectionReason:null} : r));
+  };
+  
+  const signOffFto = (id) => {
+    setFtoReports(ftoReports.map(r => r.id === id ? {...r, signedOff: true, status: 'approved'} : r));
+  };
+  
+  const getUserSubdivisions = () => {
+    const userRoster = roster.find(r => r.callsign === user.callsign);
+    return userRoster ? userRoster.subdivisions : [];
+  };
+  
+  const hasMcuAccess = () => {
+    return user.role === 'admin' || user.role === 'supervisor' || getUserSubdivisions().includes('MCU');
+  };
+  
+  const getReportCount = (callsign) => {
+    const reportCount = reports.filter(r => r.author === callsign && r.status === 'approved').length;
+    const ftoCount = ftoReports.filter(r => r.author === callsign && r.status === 'approved').length;
+    return reportCount + ftoCount;
+  };
+  
+  const isEligibleForPromotion = (callsign) => {
+    return getReportCount(callsign) >= 6;
+  };
+  
+  const autoPromoteEligible = () => {
+    const rankHierarchy = {
+      'Ranger 1st Class': 'Ranger 2nd Class',
+      'Ranger 2nd Class': 'Warden 1st Class',
+      'Warden 1st Class': 'Warden 2nd Class',
+      'Warden 2nd Class': 'Senior Warden',
+      'Senior Warden': 'Sergeant',
+      'Sergeant': 'Lieutenant',
+      'Lieutenant': 'Captain',
+      'Captain': 'Deputy Commissioner',
+      'Deputy Commissioner': 'Assistant Commissioner',
+      'Assistant Commissioner': 'Commissioner',
+      'Commissioner': 'Deputy Director',
+      'Deputy Director': 'Assistant Director',
+      'Assistant Director': 'Director'
+    };
+    
+    setRoster(roster.map(p => {
+      if (isEligibleForPromotion(p.callsign) && rankHierarchy[p.rank]) {
+        return {...p, rank: rankHierarchy[p.rank]};
+      }
+      return p;
+    }));
+  };
+  
+  const deleteReport = (id) => {
+    setReports(reports.filter(r => r.id !== id));
+  };
+  
+  const deleteFtoReport = (id) => {
+    setFtoReports(ftoReports.filter(r => r.id !== id));
+  };
+  
+  const deleteMcuCase = (id) => {
+    setMcuCases(mcuCases.filter(c => c.id !== id));
+  };
+  
+  const reviewStrike04 = (strikeId) => {
+    setStrikes(strikes.map(s => s.id === strikeId ? {
+      ...s,
+      reviewedBy04: user.callsign,
+      reviewedBy04Name: userName,
+      reviewedBy04Date: new Date().toISOString().split('T')[0],
+      status: 'pending-approval'
+    } : s));
+  };
+  
+  const approveStrike03 = (strikeId) => {
+    setStrikes(strikes.map(s => s.id === strikeId ? {
+      ...s,
+      approvedBy03: user.callsign,
+      approvedBy03Name: userName,
+      approvedBy03Date: new Date().toISOString().split('T')[0],
+      status: 'approved'
+    } : s));
+  };
+  
+  const rejectStrike = (strikeId) => {
+    setStrikes(strikes.map(s => s.id === strikeId ? {
+      ...s,
+      status: 'rejected'
+    } : s));
+  };
+  
+  const is04OrHigher = () => {
+    const approvalCallsigns = ['1104', '1103', '1102', '1101'];
+    return approvalCallsigns.includes(user.callsign);
+  };
+  
+  const is04 = () => {
+    return user.callsign === '1104';
+  };
+  
+  const is03 = () => {
+    const approvalCallsigns = ['1103', '1102', '1101'];
+    return approvalCallsigns.includes(user.callsign);
+  };
+  
+  const sortedRoster = [...roster].sort((a, b) => {
+    const roleOrder = {Admin: 0, Supervisor: 1, Ranger: 2};
+    if (roleOrder[a.role] !== roleOrder[b.role]) {
+      return roleOrder[a.role] - roleOrder[b.role];
+    }
+    
+    const allRanks = [...rangerRanks, ...supervisorRanks, ...adminRanks];
+    return allRanks.indexOf(a.rank) - allRanks.indexOf(b.rank);
+  });
+  
+  if (!user) {
+    return e('div', {className:'min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4'},
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-2xl p-8 max-w-md w-full border border-gray-700'},
+        e('div', {className:'flex items-center justify-center mb-6'}, e('div', {className:'bg-slate-700 p-3 rounded-full text-3xl'}, '🛡️')),
+        e('h2', {className:'text-2xl font-bold text-center text-white mb-2'}, 'Secure Login'),
+        e('p', {className:'text-center text-gray-400 mb-4'}, 'State Agency Game Warden System'),
+        e('div', {className:'bg-gradient-to-r from-blue-900 to-slate-800 border-l-4 border-blue-500 p-4 mb-6 rounded'},
+          e('p', {className:'text-sm italic text-gray-300 text-center'}, '"if the sunset you are trying to light up takes off and you blip and run your siren for a little bit thean its a 10-80 and the case is on."')
+        ),
+        e('div', {className:'space-y-4'},
+          e('div', {className:'bg-red-900 bg-opacity-30 rounded-lg p-4 border border-red-700'},
+            e('h3', {className:'text-sm font-bold text-red-300 mb-3'}, 'Admin Login'),
+            e('input', {type:'text', value:cs1, onChange:(ev)=>setCs1(ev.target.value), onKeyPress:(ev)=>ev.key==='Enter'&&handleLogin(), placeholder:'Callsign: 1108-1101', className:'w-full px-3 py-2 border border-gray-600 bg-[#1a1d29] text-white placeholder-gray-500 rounded-lg text-sm mb-2'}),
+            e('input', {type:'password', value:pw1, onChange:(ev)=>setPw1(ev.target.value), onKeyPress:(ev)=>ev.key==='Enter'&&handleLogin(), placeholder:'Password: AdminPass123', className:'w-full px-3 py-2 border border-gray-600 bg-[#1a1d29] text-white placeholder-gray-500 rounded-lg text-sm'})
+          ),
+          e('div', {className:'bg-blue-900 bg-opacity-30 rounded-lg p-4 border border-blue-700'},
+            e('h3', {className:'text-sm font-bold text-blue-300 mb-3'}, 'Supervisor Login'),
+            e('input', {type:'text', value:cs2, onChange:(ev)=>setCs2(ev.target.value), onKeyPress:(ev)=>ev.key==='Enter'&&handleLogin(), placeholder:'Callsign: 1128-1109', className:'w-full px-3 py-2 border border-gray-600 bg-[#1a1d29] text-white placeholder-gray-500 rounded-lg text-sm mb-2'}),
+            e('input', {type:'password', value:pw2, onChange:(ev)=>setPw2(ev.target.value), onKeyPress:(ev)=>ev.key==='Enter'&&handleLogin(), placeholder:'Password: SuperPass456', className:'w-full px-3 py-2 border border-gray-600 bg-[#1a1d29] text-white placeholder-gray-500 rounded-lg text-sm'})
+          ),
+          e('div', {className:'bg-green-900 bg-opacity-30 rounded-lg p-4 border border-green-700'},
+            e('h3', {className:'text-sm font-bold text-green-300 mb-3'}, 'Ranger Login'),
+            e('input', {type:'text', value:cs3, onChange:(ev)=>setCs3(ev.target.value), onKeyPress:(ev)=>ev.key==='Enter'&&handleLogin(), placeholder:'Callsign: 1363-1129', className:'w-full px-3 py-2 border border-gray-600 bg-[#1a1d29] text-white placeholder-gray-500 rounded-lg text-sm mb-2'}),
+            e('input', {type:'password', value:pw3, onChange:(ev)=>setPw3(ev.target.value), onKeyPress:(ev)=>ev.key==='Enter'&&handleLogin(), placeholder:'Password: RangerPass789', className:'w-full px-3 py-2 border border-gray-600 bg-[#1a1d29] text-white placeholder-gray-500 rounded-lg text-sm'})
+          ),
+          error && e('div', {className:'bg-red-900 bg-opacity-50 border border-red-700 rounded-lg p-3'}, e('p', {className:'text-sm text-red-300'}, error)),
+          e('button', {onClick:handleLogin, disabled:loading, className:'w-full bg-slate-700 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 disabled:bg-gray-700'}, loading ? 'Authenticating...' : 'Sign In')
+        )
+      )
+    );
+  }
+  
+  const handleStatusChange = (personId, status) => {
+    if (status === 'LOA') {
+      setLoaPersonId(personId);
+      setShowLoaModal(true);
+    } else {
+      setRoster(roster.map(p => p.id === personId ? {...p, status, loaStart: null, loaEnd: null} : p));
+    }
+  };
+  
+  const applyLoa = () => {
+    if (!loaStartDate || !loaEndDate) return;
+    setRoster(roster.map(p => p.id === loaPersonId ? {
+      ...p, 
+      status: 'LOA',
+      loaStart: loaStartDate,
+      loaEnd: loaEndDate
+    } : p));
+    setShowLoaModal(false);
+    setLoaPersonId(null);
+    setLoaStartDate('');
+    setLoaEndDate('');
+  };
+  
+  const submitLoaRequest = () => {
+    if (!loaReason.trim() || !loaRequestStartDate || !loaRequestEndDate) return;
+    setLoaRequests([...loaRequests, {
+      id: Date.now(),
+      requestor: user.callsign,
+      requestorName: currentUser?.name || 'Unknown',
+      reason: loaReason,
+      startDate: loaRequestStartDate,
+      endDate: loaRequestEndDate,
+      status: 'pending',
+      submittedDate: new Date().toISOString().split('T')[0]
+    }]);
+    setLoaReason('');
+    setLoaRequestStartDate('');
+    setLoaRequestEndDate('');
+  };
+  
+  const approveLoaRequest = (id) => {
+    const request = loaRequests.find(r => r.id === id);
+    if (request) {
+      setRoster(roster.map(p => p.callsign === request.requestor ? {
+        ...p,
+        status: 'LOA',
+        loaStart: request.startDate,
+        loaEnd: request.endDate
+      } : p));
+      setLoaRequests(loaRequests.map(r => r.id === id ? {...r, status: 'approved'} : r));
+    }
+  };
+  
+  const rejectLoaRequest = (id) => {
+    setLoaRequests(loaRequests.map(r => r.id === id ? {...r, status: 'rejected'} : r));
+  };
+  
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Active': return 'bg-green-900 text-green-200';
+      case 'LOA': return 'bg-orange-900 text-orange-200';
+      case 'Purge': return 'bg-red-900 text-red-200';
+      case 'Retired': return 'bg-blue-900 text-blue-200';
+      case 'Inactive': return 'bg-gray-700 text-gray-300';
+      default: return 'bg-gray-700 text-gray-300';
+    }
+  };
+  
+  const currentUser = roster.find(r => r.callsign === user.callsign);
+  const userName = currentUser ? currentUser.name : 'Unknown';
+  
+  const syncToCloud = async () => {
+    setSyncStatus('Syncing...');
+    try {
+      // Force save all current data to cloud
+      const results = await Promise.allSettled([
+        window.storage.set('sagw_roster', JSON.stringify(roster), true),
+        window.storage.set('sagw_loa_requests', JSON.stringify(loaRequests), true),
+        window.storage.set('sagw_announcements', JSON.stringify(announcements), true),
+        window.storage.set('sagw_reports_locked', JSON.stringify(reportsLocked), true),
+        window.storage.set('sagw_reports', JSON.stringify(reports), true),
+        window.storage.set('sagw_fto', JSON.stringify(ftoReports), true),
+        window.storage.set('sagw_mcu', JSON.stringify(mcuCases), true),
+        window.storage.set('sagw_strikes', JSON.stringify(strikes), true)
+      ]);
+      
+      const failed = results.filter(r => r.status === 'rejected');
+      if (failed.length === 0) {
+        setSyncStatus('✓ Successfully synced to cloud! All devices will now see this data.');
+      } else {
+        setSyncStatus('⚠ Partial sync: ' + (results.length - failed.length) + '/' + results.length + ' items saved');
+      }
+      setTimeout(() => {
+        setShowSyncModal(false);
+        setSyncStatus('');
+      }, 3000);
+    } catch(e) {
+      setSyncStatus('✗ Sync failed: ' + e.message);
+    }
+  };
+  
+  const loadFromCloud = async () => {
+    setSyncStatus('Loading from cloud...');
+    try {
+      // Clear localStorage first
+      localStorage.clear();
+      
+      // Load all data from cloud
+      const rosterData = await window.storage.get('sagw_roster', true);
+      const loaData = await window.storage.get('sagw_loa_requests', true);
+      const announcementsData = await window.storage.get('sagw_announcements', true);
+      const lockedData = await window.storage.get('sagw_reports_locked', true);
+      const reportsData = await window.storage.get('sagw_reports', true);
+      const ftoData = await window.storage.get('sagw_fto', true);
+      const mcuData = await window.storage.get('sagw_mcu', true);
+      
+      if (rosterData?.value) setRoster(JSON.parse(rosterData.value));
+      if (loaData?.value) setLoaRequests(JSON.parse(loaData.value));
+      if (announcementsData?.value) setAnnouncements(JSON.parse(announcementsData.value));
+      if (lockedData?.value) setReportsLocked(JSON.parse(lockedData.value));
+      if (reportsData?.value) setReports(JSON.parse(reportsData.value));
+      if (ftoData?.value) setFtoReports(JSON.parse(ftoData.value));
+      if (mcuData?.value) setMcuCases(JSON.parse(mcuData.value));
+      
+      setSyncStatus('✓ Successfully loaded from cloud!');
+      setTimeout(() => {
+        setShowSyncModal(false);
+        setSyncStatus('');
+        window.location.reload();
+      }, 2000);
+    } catch(e) {
+      setSyncStatus('✗ Cloud storage unavailable. Using local storage only.');
+      setTimeout(() => {
+        setShowSyncModal(false);
+        setSyncStatus('');
+      }, 3000);
+    }
+  };
+  
+  return e('div', {className:'min-h-screen ' + (darkMode ? 'bg-[#1a1d29]' : 'bg-gray-100')},
+    e('div', {className:(darkMode ? 'bg-[#2c3442] text-white' : 'bg-white text-gray-900 border-b') + ' p-4'},
+      e('div', {className:'max-w-7xl mx-auto flex justify-between items-center'},
+        e('div', {className:'flex items-center gap-3'},
+          e('div', {className:'text-2xl'}, '🛡️'),
+          e('div', null,
+            e('h1', {className:'text-xl font-bold'}, 'SAGW Management System'),
+            e('p', {className:(darkMode ? 'text-slate-300' : 'text-gray-600')}, user.callsign + ' - ' + userName)
+          )
+        ),
+        e('div', {className:'flex gap-2'},
+          e('button', {
+            onClick: () => setDarkMode(!darkMode),
+            className:(darkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-800 hover:bg-gray-700') + ' px-4 py-2 rounded-lg text-white text-sm'
+          }, darkMode ? '☀️ Light' : '🌙 Dark'),
+          e('button', {onClick: () => setShowSyncModal(true), className:(darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600') + ' px-4 py-2 rounded-lg text-white text-sm'}, '☁️ Sync'),
+          e('button', {onClick: () => setUser(null), className:(darkMode ? 'bg-slate-700 hover:bg-slate-600' : 'bg-gray-700 hover:bg-gray-600') + ' px-4 py-2 rounded-lg text-white'}, 'Logout')
+        )
+      )
+    ),
+    e('div', {className:(darkMode ? 'bg-[#2c3442]' : 'bg-white border-b') + ' shadow'},
+      e('div', {className:'max-w-7xl mx-auto px-4'},
+        e('div', {className:'flex gap-1 overflow-x-auto'},
+          e('button', {onClick: () => setActiveTab('roster'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='roster'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '👥 Roster'),
+          e('button', {onClick: () => setActiveTab('reports'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='reports'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '📄 Reports'),
+          hasMcuAccess() && e('button', {onClick: () => setActiveTab('mcu'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='mcu'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '🔍 MCU Cases'),
+          e('button', {onClick: () => setActiveTab('subdivisions'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='subdivisions'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '🎖️ Sub-Divisions'),
+          e('button', {onClick: () => setActiveTab('fto'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='fto'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '📋 FTO'),
+          (user.role === 'admin' || user.role === 'supervisor') && e('button', {onClick: () => setActiveTab('strikes'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='strikes'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '⚠️ Strikes'),
+          e('button', {onClick: () => setActiveTab('strike-log'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='strike-log'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '📜 Strike Log'),
+          e('button', {onClick: () => setActiveTab('loa'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='loa'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '📅 LOA Request'),
+          user.role === 'admin' && e('button', {onClick: () => setActiveTab('loa-admin'), className: 'px-6 py-3 font-medium whitespace-nowrap ' + (darkMode ? 'text-white ' : 'text-gray-700 ') + (activeTab==='loa-admin'?'border-b-2 border-blue-500':'opacity-70 hover:opacity-100')}, '📅 LOA Management')
+        )
+      )
+    ),
+    e('div', {className:'max-w-7xl mx-auto p-6'},
+      announcements.filter(a => {
+        const now = new Date().getTime();
+        return (!a.postAt || a.postAt <= now) && (!a.expiresAt || a.expiresAt > now);
+      }).length > 0 && e('div', {className:'bg-gradient-to-r from-blue-900 to-blue-800 rounded-lg shadow-lg p-4 mb-6 border-2 border-blue-500'},
+        e('div', {className:'flex items-start gap-3'},
+          e('div', {className:'text-3xl'}, '📢'),
+          e('div', {className:'flex-1'},
+            e('h3', {className:'font-bold text-white text-lg mb-2'}, 'Announcements'),
+            announcements.filter(a => {
+              const now = new Date().getTime();
+              return (!a.postAt || a.postAt <= now) && (!a.expiresAt || a.expiresAt > now);
+            }).map((a, i) => e('div', {key:a.id, className:'mb-3 last:mb-0'},
+              e('div', {className:'flex justify-between items-start'},
+                e('div', {className:'flex-1'},
+                  e('p', {className:'text-white text-sm mb-1'}, a.text),
+                  e('p', {className:'text-blue-200 text-xs'}, 'Posted by ' + a.author + ' on ' + a.date + (a.expiresAt ? ' • Expires ' + new Date(a.expiresAt).toLocaleString() : ''))
+                ),
+                user.role === 'admin' && e('button', {
+                  onClick: () => setAnnouncements(announcements.filter(ann => ann.id !== a.id)),
+                  className:'text-red-300 hover:text-red-100 text-xs ml-2'
+                }, '✕')
+              )
+            ))
+          )
+        )
+      ),
+      activeTab === 'roster' ?
+      e('div', null,
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('div', {className:'flex justify-between items-center mb-6'},
+          e('h2', {className:'text-2xl font-bold text-white'}, 'Personnel Roster'),
+          e('div', {className:'flex gap-2'},
+            user.role === 'admin' && sortedRoster.filter(p => isEligibleForPromotion(p.callsign)).length > 0 &&
+              e('button', {
+                onClick: autoPromoteEligible,
+                className:'bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 font-semibold'
+              }, '⭐ Auto-Promote Eligible'),
+            user.role === 'admin' && e('button', {
+              onClick: () => setShowAnnouncementForm(!showAnnouncementForm),
+              className:'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold'
+            }, '📢 Post Announcement'),
+            user.role === 'admin' && e('button', {onClick: () => setAddingPerson(true), className:'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-semibold'}, '+ Add Personnel')
+          )
+        ),
+        showAnnouncementForm && user.role === 'admin' && e('div', {className:'bg-[#1a1d29] border-2 border-blue-500 rounded-lg p-4 mb-6'},
+          e('h3', {className:'font-semibold text-lg mb-3 text-white'}, 'Post New Announcement'),
+          e('textarea', {
+            value: newAnnouncement,
+            onChange: (ev) => setNewAnnouncement(ev.target.value),
+            placeholder: 'Enter announcement text...',
+            className: 'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600 mb-3 h-24'
+          }),
+          e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-3 mb-3'},
+            e('div', null,
+              e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Post Date/Time (optional)'),
+              e('input', {
+                type: 'datetime-local',
+                value: announcementPostDate,
+                onChange: (ev) => setAnnouncementPostDate(ev.target.value),
+                className: 'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+              })
+            ),
+            e('div', null,
+              e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Duration (hours, optional)'),
+              e('input', {
+                type: 'number',
+                value: announcementDuration,
+                onChange: (ev) => setAnnouncementDuration(ev.target.value),
+                placeholder: 'e.g., 24',
+                min: '1',
+                className: 'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+              })
+            )
+          ),
+          e('p', {className:'text-xs text-gray-400 mb-3'}, 'Leave fields blank to post immediately and keep indefinitely'),
+          e('div', {className:'flex gap-2'},
+            e('button', {
+              onClick: () => {
+                if (!newAnnouncement.trim()) return;
+                const postAt = announcementPostDate ? new Date(announcementPostDate).getTime() : null;
+                const expiresAt = announcementDuration ? (postAt || Date.now()) + (parseInt(announcementDuration) * 3600000) : null;
+                setAnnouncements([...announcements, {
+                  id: Date.now(),
+                  text: newAnnouncement,
+                  author: user.callsign,
+                  date: new Date().toISOString().split('T')[0],
+                  postAt,
+                  expiresAt
+                }]);
+                setNewAnnouncement('');
+                setAnnouncementPostDate('');
+                setAnnouncementDuration('');
+                setShowAnnouncementForm(false);
+              },
+              className:'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700'
+            }, 'Post'),
+            e('button', {
+              onClick: () => {setShowAnnouncementForm(false); setNewAnnouncement(''); setAnnouncementPostDate(''); setAnnouncementDuration('');},
+              className:'bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700'
+            }, 'Cancel')
+          )
+        ),
+        addingPerson && e('div', {className:'bg-[#1a1d29] border-2 border-blue-500 rounded-lg p-4 mb-6'},
+          e('h3', {className:'font-semibold text-lg mb-4 text-white'}, editingPerson ? 'Edit Personnel' : 'Add New Personnel'),
+          e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-4'},
+            e('div', null, e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Callsign *'), e('input', {type:'text', value:newCallsign, onChange:(ev)=>setNewCallsign(ev.target.value), placeholder:'e.g., 1364', className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'})),
+            e('div', null, e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Full Name *'), e('input', {type:'text', value:newName, onChange:(ev)=>setNewName(ev.target.value), placeholder:'e.g., John Doe', className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'})),
+            e('div', null, e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Password'), e('input', {type:'text', value:newPassword, onChange:(ev)=>setNewPassword(ev.target.value), placeholder: editingPerson ? 'Leave blank to keep current/default' : 'Leave blank for default password', className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'})),
+            e('div', null, e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Role'), e('select', {value:newRole, onChange:(ev)=>{setNewRole(ev.target.value); setNewRank(getRanks(ev.target.value)[0]);}, className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'}, e('option', {value:'Admin'}, 'Admin'), e('option', {value:'Supervisor'}, 'Supervisor'), e('option', {value:'Ranger'}, 'Ranger'))),
+            e('div', null, e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Rank'), e('select', {value:newRank, onChange:(ev)=>setNewRank(ev.target.value), className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'}, getRanks(newRole).map(rank => e('option', {key:rank, value:rank}, rank)))),
+            e('div', null, e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Status'), e('select', {value:newStatus, onChange:(ev)=>setNewStatus(ev.target.value), className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'}, e('option', {value:'Active'}, 'Active'), e('option', {value:'LOA'}, 'LOA'), e('option', {value:'Purge'}, 'Purge'), e('option', {value:'Retired'}, 'Retired'), e('option', {value:'Inactive'}, 'Inactive')))
+          ),
+          e('div', {className:'mt-4'}, e('label', {className:'block text-sm font-medium mb-2 text-gray-300'}, 'Sub-Divisions'), e('div', {className:'grid grid-cols-2 md:grid-cols-4 gap-2'}, subdivisions.map(sub => e('label', {key:sub, className:'flex items-center p-2 border rounded-lg cursor-pointer hover:bg-blue-900 border-gray-600 ' + (selectedSubs.includes(sub) ? 'bg-blue-900 border-blue-500' : '')}, e('input', {type:'checkbox', checked:selectedSubs.includes(sub), onChange:() => toggleSub(sub), className:'mr-2'}), e('span', {className:'text-sm text-white'}, sub))))),
+          selectedSubs.length > 0 && e('div', {className:'mt-4 bg-[#2c3442] border border-blue-500 rounded-lg p-4'},
+            e('h4', {className:'font-semibold text-white mb-3'}, 'Subdivision Ranks'),
+            e('p', {className:'text-xs text-gray-400 mb-3'}, 'Assign specific ranks for each subdivision (Marine uses general SAGW rank)'),
+            e('div', {className:'space-y-3'},
+              selectedSubs.filter(sub => subdivisionRanks[sub]).map(sub => e('div', {key:sub, className:'bg-[#1a1d29] rounded p-3'},
+                e('label', {className:'block text-sm font-medium mb-2 text-gray-300'}, sub + ' Rank'),
+                e('select', {
+                  value: subdivisionRankAssignments[sub] || '',
+                  onChange: (ev) => setSubdivisionRankAssignments({...subdivisionRankAssignments, [sub]: ev.target.value}),
+                  className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+                },
+                  e('option', {value:''}, 'No specific rank'),
+                  subdivisionRanks[sub].map(rank => e('option', {key:rank, value:rank}, rank))
+                )
+              ))
+            )
+          ),
+          e('div', {className:'flex gap-3 mt-4'}, e('button', {onClick: editingPerson ? updatePerson : addPerson, className:'bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 font-semibold'}, editingPerson ? 'Update Personnel' : 'Add Personnel'), e('button', {onClick: resetForm, className:'bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400'}, 'Cancel'))
+        ),
+        e('div', {className:'overflow-x-auto'},
+          e('table', {className:'w-full'},
+            e('thead', {className:'bg-[#1a1d29]'}, e('tr', null, e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Callsign'), e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Name'), e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Rank'), e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Role'), e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Status'), e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Sub-Divisions'), (user.role === 'admin' || user.role === 'supervisor') && e('th', {className:'px-4 py-3 text-left text-sm font-semibold text-gray-300'}, 'Performance'))),
+            e('tbody', {className:'divide-y'}, sortedRoster.map(person => e('tr', {key:person.id, className:'hover:bg-gray-50'}, e('td', {className:'px-4 py-3 text-sm font-medium'}, person.callsign), e('td', {className:'px-4 py-3 text-sm'}, person.name), e('td', {className:'px-4 py-3 text-sm text-gray-600'}, person.rank || 'N/A'),                 e('td', {className:'px-4 py-3'}, e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + (person.role==='Admin'?'bg-red-900 text-red-200':person.role==='Supervisor'?'bg-blue-900 text-blue-200':'bg-green-900 text-green-200')}, person.role)), e('td', {className:'px-4 py-3 text-sm'}, person.status), e('td', {className:'px-4 py-3 text-sm'}, person.subdivisions.length > 0 ? e('div', {className:'flex flex-wrap gap-1'}, person.subdivisions.map(sub => e('span', {key:sub, className:'px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs'}, sub))) : e('span', {className:'text-gray-400'}, 'None')), user.role === 'admin' && e('td', {className:'px-4 py-3'}, e('div', {className:'flex gap-2'}, e('button', {onClick: () => editPerson(person), className:'text-blue-600 hover:text-blue-800 text-sm font-medium'}, 'Edit'), e('button', {onClick: () => removePerson(person.id), className:'text-red-600 hover:text-red-800 text-sm font-medium'}, 'Remove'))))))
+          )
+        )
+      ),
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6 mt-6'},
+        e('h3', {className:'text-xl font-bold mb-4 text-white'}, 'Sub-Division Rosters'),
+        e('div', {className:'space-y-3'}, subdivisions.map(sub => {
+          const members = roster.filter(m => m.subdivisions.includes(sub)).sort((a, b) => {
+            // If subdivision has ranks, sort by subdivision rank
+            if (subdivisionRanks[sub]) {
+              const aRank = a.subdivisionRanks && a.subdivisionRanks[sub] ? subdivisionRanks[sub].indexOf(a.subdivisionRanks[sub]) : 999;
+              const bRank = b.subdivisionRanks && b.subdivisionRanks[sub] ? subdivisionRanks[sub].indexOf(b.subdivisionRanks[sub]) : 999;
+              if (aRank !== bRank) return aRank - bRank;
+            }
+            // Otherwise sort by general role and rank
+            const roleOrder = {Admin: 0, Supervisor: 1, Ranger: 2};
+            if (roleOrder[a.role] !== roleOrder[b.role]) {
+              return roleOrder[a.role] - roleOrder[b.role];
+            }
+            const allRanks = [...rangerRanks, ...supervisorRanks, ...adminRanks];
+            return allRanks.indexOf(a.rank) - allRanks.indexOf(b.rank);
+          });
+          return e('div', {key:sub, className:'border border-gray-700 rounded-lg overflow-hidden'},
+            e('div', {className:'bg-[#1a1d29] px-4 py-3 font-semibold text-white flex justify-between items-center'},
+              e('span', null, '🎖️ ' + sub),
+              e('span', {className:'text-sm bg-[#2c3442] px-2 py-1 rounded-full'}, members.length + ' member' + (members.length !== 1 ? 's' : ''))
+            ),
+            members.length > 0 && e('div', {className:'p-4 bg-[#2c3442]'},
+              e('div', {className:'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'},
+                members.map(m => {
+                  const isVolunteer = m.callsign.toUpperCase().includes('V');
+                  const subRank = m.subdivisionRanks && m.subdivisionRanks[sub] ? m.subdivisionRanks[sub] : null;
+                  return e('div', {key:m.id, className:'border border-gray-700 rounded-lg p-3 bg-[#1a1d29]'},
+                    e('div', {className:'flex justify-between items-start mb-2'},
+                      e('div', null,
+                        e('div', {className:'font-semibold text-sm text-white flex items-center gap-2 flex-wrap'}, 
+                          m.callsign + ' - ' + m.name,
+                          isVolunteer && e('span', {className:'px-2 py-1 bg-purple-900 text-purple-200 rounded text-xs font-bold'}, '🎗️ VOLUNTEER')
+                        ),
+                        e('div', {className:'text-xs text-gray-400 mt-1'}, 'General Rank: ' + (m.rank || 'N/A')),
+                        subRank && e('div', {className:'text-xs text-blue-400 mt-1 font-semibold'}, sub + ' Rank: ' + subRank)
+                      ),
+                      e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + (m.role==='Admin'?'bg-red-900 text-red-200':m.role==='Supervisor'?'bg-blue-900 text-blue-200':'bg-green-900 text-green-200')}, m.role)
+                    ),
+                    e('div', {className:'text-xs text-gray-500'}, 'Status: ' + m.status)
+                  );
+                })
+              )
+            )
+          );
+        }))
+      )
+    )
+    : activeTab === 'reports' ?
+      e('div', null,
+        e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6 mb-6'},
+          e('div', {className:'flex justify-between items-center mb-4'},
+            e('h2', {className:'text-2xl font-bold text-white'}, 'Incident Reports'),
+            e('div', {className:'flex gap-2'},
+              user.role === 'admin' && e('button', {
+                onClick: () => setReportsLocked(!reportsLocked),
+                className: (reportsLocked ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700') + ' text-white px-4 py-2 rounded-lg font-semibold'
+              }, reportsLocked ? '🔒 Unlock Reports' : '🔓 Lock Reports'),
+              !reportsLocked && e('button', {
+                onClick: () => setActiveTab('create-report'),
+                className:'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold'
+              }, '+ Create Report')
+            )
+          ),
+          reportsLocked && e('div', {className:'bg-red-900 border-2 border-red-600 rounded-lg p-4 mb-4'},
+            e('div', {className:'flex items-center gap-2'},
+              e('span', {className:'text-2xl'}, '🔒'),
+              e('div', null,
+                e('p', {className:'text-white font-bold'}, 'Reports are currently LOCKED'),
+                e('p', {className:'text-red-200 text-sm'}, 'New reports cannot be created or submitted at this time.')
+              )
+            )
+          ),
+          e('div', {className:'space-y-4'},
+            reports.map(r => {
+              const authorReportCount = getReportCount(r.author);
+              const authorEligible = isEligibleForPromotion(r.author);
+              return e('div', {key:r.id, className:'bg-[#1a1d29] border border-gray-700 rounded-lg p-4'},
+                e('div', {className:'flex justify-between mb-2'},
+                  e('div', null,
+                    e('h3', {className:'font-semibold text-lg text-white'}, r.title),
+                    e('div', {className:'flex items-center gap-2 mt-1'},
+                      e('p', {className:'text-sm text-gray-400'}, 'By ' + r.author + ' on ' + r.date),
+                      (user.role==='supervisor' || user.role==='admin') && authorEligible && 
+                        e('span', {className:'px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold'}, '⭐ ' + authorReportCount + ' reports')
+                    )
+                  ),
+                  e('span', {className:'px-3 py-1 rounded-full text-xs font-semibold ' + (r.status==='pending'?'bg-yellow-900 text-yellow-200':r.status==='approved'?'bg-green-900 text-green-200':'bg-red-900 text-red-200')}, r.status.toUpperCase())
+                ),
+                e('pre', {className:'text-gray-300 mb-3 whitespace-pre-wrap font-sans text-sm bg-[#2c3442] p-3 rounded border border-gray-700'}, r.details),
+                r.status==='rejected' && r.rejectionReason && r.author===user.callsign && 
+                  e('div', {className:'bg-red-50 border border-red-200 rounded p-3 mb-3'},
+                    e('p', {className:'text-sm font-semibold text-red-800'}, 'Rejection Reason:'),
+                    e('p', {className:'text-sm text-red-700'}, r.rejectionReason)
+                  ),
+                e('div', {className:'flex gap-2'},
+                  (user.role==='supervisor' || user.role==='admin') && r.status==='pending' && 
+                    e('button', {onClick: () => approve(r.id), className:'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700'}, 'Approve'),
+                  (user.role==='supervisor' || user.role==='admin') && r.status==='pending' && 
+                    e('button', {onClick: () => openReject(r.id), className:'bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700'}, 'Reject'),
+                  user.role==='admin' &&
+                    e('button', {onClick: () => deleteReport(r.id), className:'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700'}, 'Delete')
+                )
+              );
+            })
+          )
+        ),
+        (user.role==='supervisor' || user.role==='admin') && e('div', {className:'bg-gradient-to-r from-yellow-900 to-amber-900 rounded-lg shadow-md p-6 border-2 border-yellow-700'},
+          e('h3', {className:'text-xl font-bold mb-4 text-yellow-100'}, '⭐ Promotion Eligible Personnel'),
+          e('p', {className:'text-sm text-yellow-200 mb-4'}, 'Officers with 6+ approved reports'),
+          sortedRoster.filter(p => isEligibleForPromotion(p.callsign)).length === 0 ?
+            e('p', {className:'text-gray-400 text-center py-4'}, 'No personnel currently eligible for promotion') :
+            e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-3'},
+              sortedRoster.filter(p => isEligibleForPromotion(p.callsign)).map(p => 
+                e('div', {key:p.id, className:'bg-[#2c3442] rounded-lg p-4 border-2 border-yellow-600 shadow-sm'},
+                  e('div', {className:'flex justify-between items-start mb-2'},
+                    e('div', null,
+                      e('div', {className:'font-bold text-lg text-white'}, p.callsign + ' - ' + p.name),
+                      e('div', {className:'text-sm text-gray-400'}, p.rank || 'N/A')
+                    ),
+                    e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + (p.role==='Admin'?'bg-red-900 text-red-200':p.role==='Supervisor'?'bg-blue-900 text-blue-200':'bg-green-900 text-green-200')}, p.role)
+                  ),
+                  e('div', {className:'flex items-center gap-2 text-sm'},
+                    e('span', {className:'font-semibold text-green-400'}, getReportCount(p.callsign) + ' approved reports'),
+                    e('span', {className:'text-gray-500'}, '•'),
+                    e('span', {className:'text-gray-400'}, p.status)
+                  )
+                )
+              )
+            )
+        )
+      )
+    : activeTab === 'create-report' ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        reportsLocked && user.role !== 'admin' ? 
+          e('div', null,
+            e('div', {className:'flex items-center gap-3 mb-6'},
+              e('button', {
+                onClick: () => setActiveTab('reports'),
+                className:'text-gray-400 hover:text-white'
+              }, '← Back')
+            ),
+            e('div', {className:'bg-red-900 border-2 border-red-600 rounded-lg p-8 text-center'},
+              e('div', {className:'text-6xl mb-4'}, '🔒'),
+              e('h3', {className:'text-2xl font-bold text-white mb-2'}, 'Reports are Locked'),
+              e('p', {className:'text-red-200'}, 'New reports cannot be created at this time. Please check back later.')
+            )
+          ) :
+          e('div', null,
+        e('div', {className:'flex items-center gap-3 mb-6'},
+          e('button', {
+            onClick: () => setActiveTab('reports'),
+            className:'text-gray-400 hover:text-white'
+          }, '← Back'),
+          e('h2', {className:'text-2xl font-bold text-white'}, 'Create New Report')
+        ),
+        !selectedTemplate ?
+          e('div', null,
+            e('div', {className:'mb-6'},
+              e('h3', {className:'font-semibold text-lg mb-3 text-white'}, 'General Reports'),
+              e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-2'},
+                generalReportTemplates.map(t => e('button', {
+                  key: t.id,
+                  onClick: () => {
+                    setSelectedTemplate(t);
+                    setNewReportTitle(t.name);
+                    setNewReportDetails(t.template);
+                  },
+                  className:'bg-[#1a1d29] border border-blue-500 hover:bg-blue-900 text-left px-4 py-3 rounded-lg text-sm font-medium text-white'
+                }, t.name))
+              )
+            ),
+            e('div', null,
+              e('h3', {className:'font-semibold text-lg mb-3 text-white'}, 'Sub-Division Reports'),
+              e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-2'},
+                subdivisionTemplates
+                  .filter(t => user.role === 'admin' || user.role === 'supervisor' || getUserSubdivisions().includes(t.subdivision))
+                  .map(t => e('button', {
+                    key: t.id,
+                    onClick: () => {
+                      setSelectedTemplate(t);
+                      setNewReportTitle(t.name);
+                      setNewReportDetails(t.template);
+                    },
+                    className:'bg-[#1a1d29] border border-purple-500 hover:bg-purple-900 text-left px-4 py-3 rounded-lg text-sm font-medium text-white'
+                  }, t.name + ' (' + t.subdivision + ')'))
+              )
+            )
+          ) :
+          e('div', {className:'bg-[#1a1d29] rounded-lg p-4'},
+            e('h3', {className:'font-semibold text-white mb-3'}, selectedTemplate.name),
+            e('textarea', {
+              value:newReportDetails, 
+              onChange:(ev)=>setNewReportDetails(ev.target.value), 
+              className:'w-full px-3 py-2 border border-gray-600 rounded-lg h-96 font-mono text-sm mb-3 bg-[#2c3442] text-white'
+            }),
+            e('div', {className:'flex gap-2'},
+              e('button', {
+                onClick:() => {
+                  if (!newReportTitle.trim() || !newReportDetails.trim()) return;
+                  if (reportsLocked && user.role !== 'admin') return;
+                  if (selectedTemplate.subdivision === 'FTO') {
+                    setFtoReports([...ftoReports, {
+                      id: Date.now(),
+                      title: newReportTitle,
+                      details: newReportDetails,
+                      author: user.callsign,
+                      date: new Date().toISOString().split('T')[0],
+                      status: 'pending',
+                      signedOff: false
+                    }]);
+                    setActiveTab('fto');
+                  } else if (selectedTemplate.subdivision === 'MCU') {
+                    const activeCase = mcuCases.find(c => c.status === 'active');
+                    if (activeCase) {
+                      setMcuCases(mcuCases.map(c => c.id === activeCase.id ? {
+                        ...c,
+                        reports: [...c.reports, {
+                          id: Date.now(),
+                          type: selectedTemplate.name.replace('MCU - ', ''),
+                          author: user.callsign,
+                          date: new Date().toISOString().split('T')[0],
+                          details: newReportDetails,
+                          status: 'pending',
+                          csApproved: false,
+                          tlApproved: false
+                        }]
+                      } : c));
+                    }
+                    setActiveTab('mcu');
+                  } else {
+                    setReports([...reports, {
+                      id: Date.now(),
+                      title: newReportTitle,
+                      details: newReportDetails,
+                      author: user.callsign,
+                      date: new Date().toISOString().split('T')[0],
+                      status: 'pending',
+                      rejectionReason: null
+                    }]);
+                    setActiveTab('reports');
+                  }
+                  setNewReportTitle('');
+                  setNewReportDetails('');
+                  setSelectedTemplate(null);
+                },
+                className:'bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 font-semibold'
+              }, 'Submit Report'),
+              e('button', {
+                onClick:()=>{
+                  setSelectedTemplate(null); 
+                  setNewReportTitle(''); 
+                  setNewReportDetails('');
+                },
+                className:'bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700'
+              }, 'Cancel')
+            )
+          )
+        )
+      )
+    : activeTab === 'mcu' && hasMcuAccess() ?
+      e('div', {className:'space-y-6'},
+        e('div', {className:'bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-lg shadow-lg p-6'},
+          e('div', {className:'flex justify-between items-center'},
+            e('div', null,
+              e('h2', {className:'text-3xl font-bold mb-2'}, '🔍 Major Crimes Unit'),
+              e('p', {className:'text-slate-300'}, 'Investigation Case Management System')
+            ),
+            user.role === 'admin' && e('button', {
+              onClick: () => setReportsLocked(!reportsLocked),
+              className: (reportsLocked ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700') + ' text-white px-4 py-2 rounded-lg font-semibold'
+            }, reportsLocked ? '🔒 Unlock MCU' : '🔓 Lock MCU')
+          )
+        ),
+        reportsLocked && e('div', {className:'bg-red-900 border-2 border-red-600 rounded-lg p-4'},
+          e('div', {className:'flex items-center gap-2'},
+            e('span', {className:'text-2xl'}, '🔒'),
+            e('div', null,
+              e('p', {className:'text-white font-bold'}, 'MCU Cases are currently LOCKED'),
+              e('p', {className:'text-red-200 text-sm'}, 'New cases and reports cannot be created at this time.')
+            )
+          )
+        ),
+        e('div', {className:'grid grid-cols-1 md:grid-cols-4 gap-4'},
+          e('div', {className:'bg-white rounded-lg shadow p-4 border-l-4 border-blue-500'},
+            e('div', {className:'text-2xl font-bold text-blue-600'}, mcuCases.filter(c => c.status === 'active').length),
+            e('div', {className:'text-sm text-gray-600'}, 'Active Cases')
+          ),
+          e('div', {className:'bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500'},
+            e('div', {className:'text-2xl font-bold text-yellow-600'}, mcuCases.filter(c => c.priority === 'high' || c.priority === 'critical').length),
+            e('div', {className:'text-sm text-gray-600'}, 'High Priority')
+          ),
+          e('div', {className:'bg-white rounded-lg shadow p-4 border-l-4 border-green-500'},
+            e('div', {className:'text-2xl font-bold text-green-600'}, mcuCases.filter(c => c.status === 'closed').length),
+            e('div', {className:'text-sm text-gray-600'}, 'Closed Cases')
+          ),
+          e('div', {className:'bg-white rounded-lg shadow p-4 border-l-4 border-purple-500'},
+            e('div', {className:'text-2xl font-bold text-purple-600'}, mcuCases.reduce((acc, c) => acc + c.reports.length, 0)),
+            e('div', {className:'text-sm text-gray-600'}, 'Total Reports')
+          )
+        ),
+        e('div', {className:'space-y-4'},
+          mcuCases.map(c => e('div', {key:c.id, className:'bg-white rounded-lg shadow-md overflow-hidden'},
+            e('div', {className:'p-4 bg-blue-50'},
+              e('div', {className:'flex justify-between items-start mb-2'},
+                e('div', null,
+                  e('div', {className:'flex items-center gap-3 mb-2'},
+                    e('h3', {className:'text-xl font-bold'}, c.caseNumber),
+                    e('span', {className:'px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800'}, c.priority.toUpperCase())
+                  ),
+                  e('p', {className:'text-lg font-semibold text-gray-800'}, c.title),
+                  e('div', {className:'flex gap-4 mt-2 text-sm text-gray-600'},
+                    e('span', null, '📂 ' + c.section),
+                    e('span', null, '👤 Lead: ' + c.leadInvestigator),
+                    e('span', null, '📅 Opened: ' + c.dateOpened)
+                  )
+                ),
+                e('div', {className:'flex items-center gap-2'},
+                  e('span', {className:'px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800'}, c.status.toUpperCase()),
+                  user.role === 'admin' && e('button', {
+                    onClick: () => deleteMcuCase(c.id),
+                    className:'text-red-600 hover:text-red-800 ml-2'
+                  }, '🗑️')
+                )
+              )
+            ),
+            e('div', {className:'p-4'},
+              e('h4', {className:'font-semibold text-gray-700 mb-3'}, 'Investigation Reports (' + c.reports.length + ')'),
+              c.reports.length === 0 ? 
+                e('p', {className:'text-gray-500 text-sm text-center py-4'}, 'No reports filed yet') :
+                e('div', {className:'space-y-3'},
+                  c.reports.map(r => e('div', {key:r.id, className:'border rounded-lg p-3 bg-gray-50'},
+                    e('div', {className:'flex justify-between mb-2'},
+                      e('div', null,
+                        e('div', {className:'flex items-center gap-2 mb-1'},
+                          e('span', {className:'font-semibold text-sm'}, r.type),
+                          e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + (r.status==='pending'?'bg-yellow-100 text-yellow-800':'bg-green-100 text-green-800')}, r.status.toUpperCase())
+                        ),
+                        e('p', {className:'text-xs text-gray-500'}, 'By ' + r.author + ' on ' + r.date)
+                      ),
+                      e('div', {className:'flex gap-1'},
+                        r.csApproved && e('span', {className:'px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold'}, '✓ CS'),
+                        r.tlApproved && e('span', {className:'px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold'}, '✓ TL')
+                      )
+                    ),
+                    e('pre', {className:'text-xs text-gray-700 whitespace-pre-wrap font-sans bg-white p-2 rounded border max-h-40 overflow-y-auto'}, r.details)
+                  ))
+                )
+            )
+          ))
+        )
+      )
+    : activeTab === 'subdivisions' ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('div', {className:'flex justify-between items-center mb-4'},
+          e('h2', {className:'text-2xl font-bold text-white'}, 'Sub-Division Reports'),
+          user.role === 'admin' && e('button', {
+            onClick: () => setReportsLocked(!reportsLocked),
+            className: (reportsLocked ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700') + ' text-white px-4 py-2 rounded-lg font-semibold'
+          }, reportsLocked ? '🔒 Unlock Sub-Divisions' : '🔓 Lock Sub-Divisions')
+        ),
+        reportsLocked && user.role !== 'admin' && e('div', {className:'bg-red-900 border-2 border-red-600 rounded-lg p-4 mb-4'},
+          e('div', {className:'flex items-center gap-2'},
+            e('span', {className:'text-2xl'}, '🔒'),
+            e('div', null,
+              e('p', {className:'text-white font-bold'}, 'Sub-Division Reports are currently LOCKED'),
+              e('p', {className:'text-red-200 text-sm'}, 'New sub-division reports cannot be created at this time.')
+            )
+          )
+        ),
+        e('div', {className:'mb-6'},
+          e('h3', {className:'font-semibold text-lg mb-2 text-white'}, 'Your Assignments:'),
+          e('div', {className:'flex flex-wrap gap-2'},
+            getUserSubdivisions().length > 0 ?
+              getUserSubdivisions().map(sub => e('span', {key:sub, className:'px-3 py-1 bg-blue-900 text-blue-200 rounded-full text-sm font-semibold'}, sub)) :
+              e('p', {className:'text-gray-400 text-sm'}, 'No sub-division assignments')
+          )
+        ),
+        (reportsLocked && user.role !== 'admin') ? 
+          e('p', {className:'text-gray-400 text-sm text-center py-8'}, 'Sub-division reports are currently locked.') :
+          !selectedTemplate ?
+          e('div', {className:'bg-[#1a1d29] rounded-lg p-4'},
+            e('h3', {className:'font-semibold text-white mb-3'}, 'Select Sub-Division Report Template'),
+            e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-2'},
+              subdivisionTemplates
+                .filter(t => user.role === 'admin' || user.role === 'supervisor' || getUserSubdivisions().includes(t.subdivision))
+                .map(t => e('button', {
+                  key: t.id,
+                  onClick: () => {
+                    setSelectedTemplate(t);
+                    setNewReportTitle(t.name);
+                    setNewReportDetails(t.template);
+                  },
+                  className:'bg-[#2c3442] border border-purple-500 hover:bg-purple-900 text-left px-4 py-3 rounded-lg text-sm font-medium text-white'
+                }, t.name + ' (' + t.subdivision + ')'))
+            )
+          ) :
+          e('div', {className:'bg-[#1a1d29] rounded-lg p-4 mt-4'},
+            e('h3', {className:'font-semibold text-white mb-3'}, selectedTemplate.name),
+            e('textarea', {
+              value:newReportDetails, 
+              onChange:(ev)=>setNewReportDetails(ev.target.value), 
+              className:'w-full px-3 py-2 border border-gray-600 rounded-lg h-96 font-mono text-sm mb-3 bg-[#2c3442] text-white'
+            }),
+            e('div', {className:'flex gap-2'},
+              e('button', {
+                onClick:() => {
+                  if (!newReportTitle.trim() || !newReportDetails.trim()) return;
+                  if (reportsLocked && user.role !== 'admin') return;
+                  if (selectedTemplate.category === 'General') {
+                    setReports([...reports, {
+                      id: Date.now(),
+                      title: newReportTitle,
+                      details: newReportDetails,
+                      author: user.callsign,
+                      date: new Date().toISOString().split('T')[0],
+                      status: 'pending',
+                      rejectionReason: null
+                    }]);
+                    setActiveTab('reports');
+                  } else if (selectedTemplate.subdivision === 'FTO') {
+                    setFtoReports([...ftoReports, {
+                      id: Date.now(),
+                      title: newReportTitle,
+                      details: newReportDetails,
+                      author: user.callsign,
+                      date: new Date().toISOString().split('T')[0],
+                      status: 'pending',
+                      signedOff: false
+                    }]);
+                    setActiveTab('fto');
+                  } else if (selectedTemplate.subdivision === 'MCU') {
+                    const activeCase = mcuCases.find(c => c.status === 'active');
+                    if (activeCase) {
+                      setMcuCases(mcuCases.map(c => c.id === activeCase.id ? {
+                        ...c,
+                        reports: [...c.reports, {
+                          id: Date.now(),
+                          type: selectedTemplate.name.replace('MCU - ', ''),
+                          author: user.callsign,
+                          date: new Date().toISOString().split('T')[0],
+                          details: newReportDetails,
+                          status: 'pending',
+                          csApproved: false,
+                          tlApproved: false
+                        }]
+                      } : c));
+                    }
+                    setActiveTab('mcu');
+                  } else {
+                    setReports([...reports, {
+                      id: Date.now(),
+                      title: newReportTitle,
+                      details: newReportDetails,
+                      author: user.callsign,
+                      date: new Date().toISOString().split('T')[0],
+                      status: 'pending',
+                      rejectionReason: null
+                    }]);
+                    setActiveTab('reports');
+                  }
+                  setNewReportTitle('');
+                  setNewReportDetails('');
+                  setSelectedTemplate(null);
+                },
+                className:'bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 font-semibold'
+              }, 'Submit Report'),
+              e('button', {
+                onClick:()=>{
+                  setSelectedTemplate(null); 
+                  setNewReportTitle(''); 
+                  setNewReportDetails('');
+                },
+                className:'bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700'
+              }, 'Cancel')
+            )
+          )
+      )
+    : activeTab === 'fto' ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('div', {className:'flex justify-between items-center mb-4'},
+          e('h2', {className:'text-2xl font-bold text-white'}, 'FTO Reports'),
+          user.role === 'admin' && e('button', {
+            onClick: () => setReportsLocked(!reportsLocked),
+            className: (reportsLocked ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700') + ' text-white px-4 py-2 rounded-lg font-semibold'
+          }, reportsLocked ? '🔒 Unlock FTO' : '🔓 Lock FTO')
+        ),
+        reportsLocked && e('div', {className:'bg-red-900 border-2 border-red-600 rounded-lg p-4 mb-4'},
+          e('div', {className:'flex items-center gap-2'},
+            e('span', {className:'text-2xl'}, '🔒'),
+            e('div', null,
+              e('p', {className:'text-white font-bold'}, 'FTO Reports are currently LOCKED'),
+              e('p', {className:'text-red-200 text-sm'}, 'New FTO reports cannot be created at this time.')
+            )
+          )
+        ),
+        e('div', {className:'space-y-4'},
+          ftoReports.map(r => e('div', {key:r.id, className:'bg-[#1a1d29] border border-gray-700 rounded-lg p-4'},
+            e('div', {className:'flex justify-between mb-2'},
+              e('div', null,
+                e('h3', {className:'font-semibold text-lg text-white'}, r.title),
+                e('p', {className:'text-sm text-gray-400'}, 'By ' + r.author + ' on ' + r.date)
+              ),
+              e('div', {className:'flex items-center gap-2'},
+                r.signedOff && e('span', {className:'px-3 py-1 bg-green-900 text-green-200 rounded-full text-xs font-semibold'}, '✓ Signed Off'),
+                e('span', {className:'px-3 py-1 rounded-full text-xs font-semibold ' + (r.status==='pending'?'bg-yellow-900 text-yellow-200':'bg-green-900 text-green-200')}, r.status.toUpperCase())
+              )
+            ),
+            e('pre', {className:'text-gray-300 mb-3 whitespace-pre-wrap font-sans text-sm bg-[#2c3442] p-3 rounded border border-gray-700'}, r.details),
+            e('div', {className:'flex gap-2'},
+              (user.role==='supervisor' || user.role==='admin') && r.status === 'pending' && e('button', {onClick: () => approveFto(r.id), className:'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm'}, 'Approve'),
+              (user.role==='supervisor' || user.role==='admin') && !r.signedOff && e('button', {onClick: () => signOffFto(r.id), className:'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm'}, 'Sign Off'),
+              user.role==='admin' && e('button', {onClick: () => deleteFtoReport(r.id), className:'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm'}, 'Delete')
+            )
+          ))
+        )
+      )
+    : activeTab === 'strikes' && (user.role === 'admin' || user.role === 'supervisor') ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('h2', {className:'text-2xl font-bold mb-6 text-white'}, '⚠️ Strike Management'),
+        !selectedStrikeTemplate ?
+          e('div', {className:'bg-[#1a1d29] border-2 border-yellow-500 rounded-lg p-4 mb-6'},
+            e('h3', {className:'font-semibold text-lg mb-4 text-white'}, 'Select Disciplinary Template'),
+            e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-3'},
+              strikeTemplates.map(template => e('button', {
+                key: template.id,
+                onClick: () => {
+                  setSelectedStrikeTemplate(template);
+                  setStrikeDetails(template.template);
+                },
+                className:'bg-[#2c3442] border border-yellow-500 hover:bg-yellow-900 text-left px-4 py-3 rounded-lg text-sm font-medium text-white'
+              }, template.name))
+            )
+          ) :
+          e('div', {className:'bg-[#1a1d29] border-2 border-yellow-500 rounded-lg p-4 mb-6'},
+            e('div', {className:'flex justify-between items-center mb-4'},
+              e('h3', {className:'font-semibold text-lg text-white'}, selectedStrikeTemplate.name),
+              e('button', {
+                onClick: () => {
+                  setSelectedStrikeTemplate(null);
+                  setStrikeCallsign('');
+                  setStrikeReason('');
+                  setStrikeDetails('');
+                  setStrikeSeverity('minor');
+                },
+                className:'text-gray-400 hover:text-white text-sm'
+              }, '← Back to Templates')
+            ),
+            e('div', {className:'grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'},
+              e('div', null,
+                e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Personnel Callsign *'),
+                e('input', {
+                  type:'text',
+                  value: strikeCallsign,
+                  onChange: (ev) => setStrikeCallsign(ev.target.value),
+                  placeholder: 'e.g., 1363',
+                  className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+                })
+              ),
+              e('div', null,
+                e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Severity *'),
+                e('select', {
+                  value: strikeSeverity,
+                  onChange: (ev) => setStrikeSeverity(ev.target.value),
+                  className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+                },
+                  e('option', {value:'verbal-warning'}, 'Verbal Warning'),
+                  e('option', {value:'1-strike'}, '1 Strike'),
+                  e('option', {value:'2-strikes'}, '2 Strikes'),
+                  e('option', {value:'3-strikes'}, '3 Strikes (Termination)'),
+                  e('option', {value:'blacklist'}, 'Blacklist')
+                )
+              )
+            ),
+            e('div', {className:'mb-4'},
+              e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Brief Reason *'),
+              e('input', {
+                type:'text',
+                value: strikeReason,
+                onChange: (ev) => setStrikeReason(ev.target.value),
+                placeholder: 'Brief summary of incident',
+                className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+              })
+            ),
+            e('div', {className:'mb-4'},
+              e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Full Notice Details *'),
+              e('textarea', {
+                value: strikeDetails,
+                onChange: (ev) => setStrikeDetails(ev.target.value),
+                className:'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600 h-96 font-mono text-sm'
+              })
+            ),
+            e('div', {className:'flex gap-2'},
+              e('button', {
+                onClick: () => {
+                  if (!strikeCallsign.trim() || !strikeReason.trim() || !strikeDetails.trim()) return;
+                  const personnel = roster.find(p => p.callsign === strikeCallsign);
+                  if (!personnel) {
+                    alert('Callsign not found in roster');
+                    return;
+                  }
+                  setStrikes([...strikes, {
+                    id: Date.now(),
+                    callsign: strikeCallsign,
+                    personnelName: personnel.name,
+                    reason: strikeReason,
+                    details: strikeDetails,
+                    severity: strikeSeverity,
+                    templateType: selectedStrikeTemplate.type,
+                    templateName: selectedStrikeTemplate.name,
+                    issuedBy: user.callsign,
+                    issuedByName: userName,
+                    date: new Date().toISOString().split('T')[0],
+                    time: new Date().toLocaleTimeString(),
+                    status: 'pending-review',
+                    reviewedBy04: null,
+                    reviewedBy04Name: null,
+                    reviewedBy04Date: null,
+                    approvedBy03: null,
+                    approvedBy03Name: null,
+                    approvedBy03Date: null
+                  }]);
+                  setSelectedStrikeTemplate(null);
+                  setStrikeCallsign('');
+                  setStrikeReason('');
+                  setStrikeDetails('');
+                  setStrikeSeverity('minor');
+                },
+                disabled: !strikeCallsign.trim() || !strikeReason.trim() || !strikeDetails.trim(),
+                className:'bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed'
+              }, 'Issue ' + selectedStrikeTemplate.name),
+              e('button', {
+                onClick: () => {
+                  setSelectedStrikeTemplate(null);
+                  setStrikeCallsign('');
+                  setStrikeReason('');
+                  setStrikeDetails('');
+                },
+                className:'bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700'
+              }, 'Cancel')
+            )
+          ),
+        e('h3', {className:'font-semibold text-lg mb-3 text-white'}, 'Disciplinary History'),
+        e('div', {className:'space-y-3'},
+          strikes.length === 0 ?
+            e('p', {className:'text-gray-400 text-center py-8'}, 'No disciplinary actions issued yet') :
+            strikes.slice().reverse().filter(strike => {
+              // Only show strikes to 04+ admins or the person who issued it
+              if (strike.status !== 'approved') {
+                return strike.issuedBy === user.callsign || is04OrHigher();
+              }
+              return true;
+            }).map(strike => {
+              const strikeCount = strikes.filter(s => s.callsign === strike.callsign && s.status === 'approved').length;
+              const showReviewButton = strike.status === 'pending-review' && is04();
+              const showApproveButton = strike.status === 'pending-approval' && is03();
+              const showRejectButton = (strike.status === 'pending-review' && is04()) || (strike.status === 'pending-approval' && is03());
+              
+              return e('div', {key:strike.id, className:'bg-[#1a1d29] border-2 rounded-lg p-4 ' + 
+                (strike.status === 'approved' ? 'border-green-700' : 
+                 strike.status === 'rejected' ? 'border-red-700' : 
+                 strike.status === 'pending-approval' ? 'border-yellow-700' : 'border-gray-700')},
+                e('div', {className:'flex justify-between items-start mb-3'},
+                  e('div', null,
+                    e('div', {className:'flex items-center gap-2 mb-2'},
+                      e('h4', {className:'font-bold text-white text-lg'}, strike.callsign + ' - ' + strike.personnelName),
+                      e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + 
+                        (strike.severity==='3-strikes' || strike.templateType==='termination'?'bg-red-900 text-red-200':
+                         strike.severity==='2-strikes'?'bg-orange-900 text-orange-200':
+                         strike.severity==='1-strike'?'bg-yellow-900 text-yellow-200':
+                         strike.severity==='blacklist'?'bg-purple-900 text-purple-200':
+                         'bg-blue-900 text-blue-200')}, 
+                        strike.templateName || strike.severity.toUpperCase()),
+                      e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + 
+                        (strike.status === 'approved' ? 'bg-green-900 text-green-200' :
+                         strike.status === 'rejected' ? 'bg-red-900 text-red-200' :
+                         strike.status === 'pending-approval' ? 'bg-yellow-900 text-yellow-200' :
+                         'bg-gray-700 text-gray-300')},
+                        strike.status === 'pending-review' ? 'PENDING 04 REVIEW' :
+                        strike.status === 'pending-approval' ? 'PENDING 03 APPROVAL' :
+                        strike.status.toUpperCase())
+                    ),
+                    e('p', {className:'text-sm text-gray-400'}, (strike.status === 'approved' ? 'Action #' + strikeCount + ' • ' : '') + 'Issued by ' + strike.issuedBy + ' (' + strike.issuedByName + ')'),
+                    e('p', {className:'text-xs text-gray-500 mb-2'}, strike.date + ' at ' + strike.time),
+                    strike.reviewedBy04 && e('p', {className:'text-xs text-blue-400'}, '✓ Reviewed by 04: ' + strike.reviewedBy04 + ' (' + strike.reviewedBy04Name + ') on ' + strike.reviewedBy04Date),
+                    strike.approvedBy03 && e('p', {className:'text-xs text-green-400'}, '✓ Approved by 03: ' + strike.approvedBy03 + ' (' + strike.approvedBy03Name + ') on ' + strike.approvedBy03Date)
+                  ),
+                  e('div', {className:'flex gap-2'},
+                    user.role === 'admin' && e('button', {
+                      onClick: () => setStrikes(strikes.filter(s => s.id !== strike.id)),
+                      className:'text-red-400 hover:text-red-300 text-sm'
+                    }, '🗑️')
+                  )
+                ),
+                e('div', {className:'bg-[#2c3442] rounded p-3 mb-2'},
+                  e('p', {className:'text-sm font-semibold text-yellow-400 mb-1'}, 'Reason: ' + strike.reason)
+                ),
+                e('div', {className:'bg-[#2c3442] rounded p-3 mb-3'},
+                  e('pre', {className:'text-sm text-gray-300 whitespace-pre-wrap font-mono'}, strike.details)
+                ),
+                (showReviewButton || showApproveButton || showRejectButton) && e('div', {className:'flex gap-2 pt-3 border-t border-gray-700'},
+                  showReviewButton && e('button', {
+                    onClick: () => reviewStrike04(strike.id),
+                    className:'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-semibold'
+                  }, '✓ Review as 04'),
+                  showApproveButton && e('button', {
+                    onClick: () => approveStrike03(strike.id),
+                    className:'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-semibold'
+                  }, '✓ Approve as 03'),
+                  showRejectButton && e('button', {
+                    onClick: () => rejectStrike(strike.id),
+                    className:'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm font-semibold'
+                  }, '✗ Reject')
+                )
+              );
+            })
+        )
+      )
+    : activeTab === 'strike-log' ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('h2', {className:'text-2xl font-bold mb-6 text-white'}, '📜 Disciplinary Log'),
+        e('p', {className:'text-sm text-gray-400 mb-6'}, 'View all approved disciplinary actions'),
+        e('div', {className:'space-y-3'},
+          strikes.filter(s => s.status === 'approved').length === 0 ?
+            e('p', {className:'text-gray-400 text-center py-8'}, 'No approved disciplinary actions on record') :
+            strikes.filter(s => s.status === 'approved').slice().reverse().map(strike => {
+              const strikeCount = strikes.filter(s => s.callsign === strike.callsign && s.status === 'approved').length;
+              return e('div', {key:strike.id, className:'bg-[#1a1d29] border-2 border-green-700 rounded-lg p-4'},
+                e('div', {className:'flex justify-between items-start mb-3'},
+                  e('div', {className:'flex-1'},
+                    e('div', {className:'flex items-center gap-2 mb-2'},
+                      e('h4', {className:'font-bold text-white text-lg'}, strike.callsign + ' - ' + strike.personnelName),
+                      e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold ' + 
+                        (strike.severity==='3-strikes' || strike.templateType==='termination'?'bg-red-900 text-red-200':
+                         strike.severity==='2-strikes'?'bg-orange-900 text-orange-200':
+                         strike.severity==='1-strike'?'bg-yellow-900 text-yellow-200':
+                         strike.severity==='blacklist'?'bg-purple-900 text-purple-200':
+                         'bg-blue-900 text-blue-200')}, 
+                        strike.templateName || strike.severity.toUpperCase()),
+                      e('span', {className:'px-2 py-1 rounded-full text-xs font-semibold bg-green-900 text-green-200'}, 'APPROVED')
+                    ),
+                    e('p', {className:'text-sm text-gray-400'}, 'Action #' + strikeCount + ' • Issued by ' + strike.issuedBy + ' (' + strike.issuedByName + ')'),
+                    e('p', {className:'text-xs text-gray-500 mb-2'}, strike.date + ' at ' + strike.time),
+                    strike.reviewedBy04 && e('p', {className:'text-xs text-blue-400'}, '✓ Reviewed by 04: ' + strike.reviewedBy04 + ' (' + strike.reviewedBy04Name + ') on ' + strike.reviewedBy04Date),
+                    strike.approvedBy03 && e('p', {className:'text-xs text-green-400'}, '✓ Approved by 03: ' + strike.approvedBy03 + ' (' + strike.approvedBy03Name + ') on ' + strike.approvedBy03Date)
+                  ),
+                  user.role === 'admin' && e('button', {
+                    onClick: (event) => {
+                      event.preventDefault();
+                      setConfirmDeleteStrike(strike.id);
+                    },
+                    className:'bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm font-semibold'
+                  }, '🗑️ Delete')
+                ),
+                e('div', {className:'bg-[#2c3442] rounded p-3 mb-2'},
+                  e('p', {className:'text-sm font-semibold text-yellow-400 mb-1'}, 'Reason: ' + strike.reason)
+                ),
+                e('div', {className:'bg-[#2c3442] rounded p-3'},
+                  e('pre', {className:'text-sm text-gray-300 whitespace-pre-wrap font-mono'}, strike.details)
+                )
+              );
+            })
+        )
+      )
+    : activeTab === 'loa' ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('h2', {className:'text-2xl font-bold mb-4 text-white'}, '📅 Request Leave of Absence'),
+        e('div', {className:'bg-[#1a1d29] rounded-lg p-4 mb-6'},
+          e('h3', {className:'font-semibold text-lg mb-3 text-white'}, 'Submit LOA Request'),
+          e('div', {className:'space-y-3'},
+            e('div', null,
+              e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Reason *'),
+              e('textarea', {
+                value: loaReason,
+                onChange: (ev) => setLoaReason(ev.target.value),
+                placeholder: 'Explain the reason for your leave...',
+                className: 'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600 h-24'
+              })
+            ),
+            e('div', {className:'grid grid-cols-2 gap-3'},
+              e('div', null,
+                e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Start Date *'),
+                e('input', {
+                  type: 'date',
+                  value: loaRequestStartDate,
+                  onChange: (ev) => setLoaRequestStartDate(ev.target.value),
+                  className: 'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+                })
+              ),
+              e('div', null,
+                e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'End Date *'),
+                e('input', {
+                  type: 'date',
+                  value: loaRequestEndDate,
+                  onChange: (ev) => setLoaRequestEndDate(ev.target.value),
+                  className: 'w-full px-3 py-2 border rounded-lg bg-[#2c3442] text-white border-gray-600'
+                })
+              )
+            ),
+            e('button', {
+              onClick: submitLoaRequest,
+              disabled: !loaReason.trim() || !loaRequestStartDate || !loaRequestEndDate,
+              className: 'bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold disabled:bg-gray-600 disabled:cursor-not-allowed'
+            }, 'Submit Request')
+          )
+        ),
+        e('h3', {className:'font-semibold text-lg mb-3 text-white'}, 'My LOA Requests'),
+        e('div', {className:'space-y-3'},
+          loaRequests.filter(r => r.requestor === user.callsign).length === 0 ?
+            e('p', {className:'text-gray-400 text-center py-4'}, 'No LOA requests submitted yet') :
+            loaRequests.filter(r => r.requestor === user.callsign).map(r => 
+              e('div', {key:r.id, className:'bg-[#1a1d29] border border-gray-700 rounded-lg p-4'},
+                e('div', {className:'flex justify-between items-start mb-2'},
+                  e('div', null,
+                    e('p', {className:'text-white font-semibold'}, 'LOA: ' + r.startDate + ' to ' + r.endDate),
+                    e('p', {className:'text-gray-400 text-sm'}, 'Submitted: ' + r.submittedDate)
+                  ),
+                  e('span', {className:'px-3 py-1 rounded-full text-xs font-semibold ' + (r.status==='pending'?'bg-yellow-900 text-yellow-200':r.status==='approved'?'bg-green-900 text-green-200':'bg-red-900 text-red-200')}, r.status.toUpperCase())
+                ),
+                e('p', {className:'text-gray-300 text-sm'}, r.reason)
+              )
+            )
+        )
+      )
+    : activeTab === 'loa-admin' && user.role === 'admin' ?
+      e('div', {className:'bg-[#2c3442] rounded-lg shadow-md p-6'},
+        e('h2', {className:'text-2xl font-bold mb-4 text-white'}, '📅 LOA Requests Management'),
+        e('div', {className:'space-y-3'},
+          loaRequests.length === 0 ?
+            e('p', {className:'text-gray-400 text-center py-4'}, 'No LOA requests') :
+            loaRequests.map(r => 
+              e('div', {key:r.id, className:'bg-[#1a1d29] border border-gray-700 rounded-lg p-4'},
+                e('div', {className:'flex justify-between items-start mb-3'},
+                  e('div', null,
+                    e('p', {className:'text-white font-semibold text-lg'}, r.requestor + ' - ' + r.requestorName),
+                    e('p', {className:'text-blue-300 text-sm'}, 'LOA Period: ' + r.startDate + ' to ' + r.endDate),
+                    e('p', {className:'text-gray-400 text-xs'}, 'Submitted: ' + r.submittedDate)
+                  ),
+                  e('span', {className:'px-3 py-1 rounded-full text-xs font-semibold ' + (r.status==='pending'?'bg-yellow-900 text-yellow-200':r.status==='approved'?'bg-green-900 text-green-200':'bg-red-900 text-red-200')}, r.status.toUpperCase())
+                ),
+                e('div', {className:'bg-[#2c3442] rounded p-3 mb-3'},
+                  e('p', {className:'text-sm font-semibold text-gray-300 mb-1'}, 'Reason:'),
+                  e('p', {className:'text-gray-300 text-sm'}, r.reason)
+                ),
+                r.status === 'pending' && e('div', {className:'flex gap-2'},
+                  e('button', {
+                    onClick: () => approveLoaRequest(r.id),
+                    className: 'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700'
+                  }, 'Approve'),
+                  e('button', {
+                    onClick: () => rejectLoaRequest(r.id),
+                    className: 'bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700'
+                  }, 'Reject')
+                )
+              )
+            )
+        )
+      )
+    : e('div', {className:'text-center py-12'}, e('p', {className:'text-gray-500'}, 'Tab not found'))
+    ),
+    showLoaModal && e('div', {className:'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'},
+      e('div', {className:'bg-[#2c3442] rounded-lg p-6 max-w-md w-full'},
+        e('h3', {className:'text-xl font-bold mb-4 text-white'}, 'Set LOA Dates'),
+        e('div', {className:'space-y-3 mb-4'},
+          e('div', null,
+            e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'Start Date'),
+            e('input', {
+              type: 'date',
+              value: loaStartDate,
+              onChange: (ev) => setLoaStartDate(ev.target.value),
+              className: 'w-full px-3 py-2 border rounded-lg bg-[#1a1d29] text-white border-gray-600'
+            })
+          ),
+          e('div', null,
+            e('label', {className:'block text-sm font-medium mb-1 text-gray-300'}, 'End Date'),
+            e('input', {
+              type: 'date',
+              value: loaEndDate,
+              onChange: (ev) => setLoaEndDate(ev.target.value),
+              className: 'w-full px-3 py-2 border rounded-lg bg-[#1a1d29] text-white border-gray-600'
+            })
+          )
+        ),
+        e('div', {className:'flex gap-3'},
+          e('button', {
+            onClick: applyLoa,
+            disabled: !loaStartDate || !loaEndDate,
+            className: 'flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed'
+          }, 'Apply LOA'),
+          e('button', {
+            onClick: () => {setShowLoaModal(false); setLoaPersonId(null); setLoaStartDate(''); setLoaEndDate('');},
+            className: 'flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700'
+          }, 'Cancel')
+        )
+      )
+    ),
+    confirmDeleteStrike && e('div', {className:'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'},
+      e('div', {className:'bg-[#2c3442] rounded-lg p-6 max-w-md mx-4'},
+        e('h3', {className:'text-xl font-bold mb-4 text-white'}, '⚠️ Confirm Deletion'),
+        e('p', {className:'text-gray-300 mb-6'}, 'Are you sure you want to permanently delete this disciplinary action from the Strike Log? This cannot be undone.'),
+        e('div', {className:'flex gap-3'},
+          e('button', {
+            onClick: () => {
+              setStrikes(strikes.filter(s => s.id !== confirmDeleteStrike));
+              setConfirmDeleteStrike(null);
+            },
+            className:'flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 font-semibold'
+          }, 'Yes, Delete'),
+          e('button', {
+            onClick: () => setConfirmDeleteStrike(null),
+            className:'flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 font-semibold'
+          }, 'Cancel')
+        )
+      )
+    ),
+    showSyncModal && e('div', {className:'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'},
+      e('div', {className:'bg-[#2c3442] rounded-lg p-6 max-w-md w-full'},
+        e('h3', {className:'text-xl font-bold mb-4 text-white'}, '☁️ Cloud Sync'),
+        e('p', {className:'text-sm text-gray-300 mb-4'}, 'Choose an option to sync your data:'),
+        e('div', {className:'bg-[#1a1d29] border border-blue-500 rounded-lg p-4 mb-3'},
+          e('h4', {className:'font-semibold text-white mb-2'}, 'Upload to Cloud'),
+          e('p', {className:'text-xs text-gray-400 mb-3'}, 'Push YOUR current data to the cloud. Everyone will see what you have on this device.'),
+          e('button', {
+            onClick: syncToCloud,
+            className:'w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700'
+          }, '⬆️ Upload My Data')
+        ),
+        e('div', {className:'bg-[#1a1d29] border border-green-500 rounded-lg p-4 mb-4'},
+          e('h4', {className:'font-semibold text-white mb-2'}, 'Download from Cloud'),
+          e('p', {className:'text-xs text-gray-400 mb-3'}, 'Pull the latest data from the cloud. Your device will match what everyone else sees.'),
+          e('button', {
+            onClick: loadFromCloud,
+            className:'w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700'
+          }, '⬇️ Download Cloud Data')
+        ),
+        syncStatus && e('div', {className:'bg-[#1a1d29] rounded-lg p-3 mb-3 text-center'},
+          e('p', {className:'text-sm ' + (syncStatus.includes('✓') ? 'text-green-400' : syncStatus.includes('✗') ? 'text-red-400' : 'text-blue-400')}, syncStatus)
+        ),
+        e('button', {
+          onClick: () => {setShowSyncModal(false); setSyncStatus('');},
+          className:'w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700'
+        }, 'Close')
+      )
+    ),
+    confirmRemove && e('div', {className:'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'},
+      e('div', {className:'bg-white rounded-lg p-6 max-w-sm mx-4'},
+        e('h3', {className:'text-lg font-bold mb-4'}, 'Confirm Removal'),
+        e('p', {className:'text-gray-700 mb-6'}, 'Are you sure you want to remove this person from the roster?'),
+        e('div', {className:'flex gap-3'},
+          e('button', {onClick: confirmRemovePerson, className:'flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 font-semibold'}, 'Yes, Remove'),
+          e('button', {onClick: () => setConfirmRemove(null), className:'flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 font-semibold'}, 'Cancel')
+        )
+      )
+    ),
+    rejectId && e('div', {className:'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'},
+      e('div', {className:'bg-white rounded-lg p-6 max-w-md w-full'},
+        e('h3', {className:'text-xl font-bold mb-4'}, 'Reject Report'),
+        e('p', {className:'text-sm text-gray-600 mb-4'}, 'Select a reason for rejection:'),
+        e('div', {className:'space-y-2 mb-4'},
+          ['missing-information', 'incomplete-details', 'incorrect-format', 'insufficient-evidence', 'duplicate-report', 'other'].map(opt =>
+            e('label', {key:opt, className:'flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'},
+              e('input', {type:'radio', name:'rejection', value:opt, checked:rejectReason===opt, onChange:(ev) => setRejectReason(ev.target.value), className:'mr-3'}),
+              e('span', {className:'text-sm'}, opt.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))
+            )
+          )
+        ),
+        rejectReason==='other' && e('div', {className:'mb-4'},
+          e('label', {className:'block text-sm font-medium mb-2'}, 'Please specify:'),
+          e('textarea', {value:customReason, onChange:(ev) => setCustomReason(ev.target.value), placeholder:'Enter custom reason...', className:'w-full px-3 py-2 border rounded-lg h-24'})
+        ),
+        e('div', {className:'flex gap-3'},
+          e('button', {onClick:confirmReject, disabled:!rejectReason || (rejectReason==='other' && !customReason.trim()), className:'flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed'}, 'Confirm Rejection'),
+          e('button', {onClick:() => {setRejectId(null); setRejectReason(''); setCustomReason('');}, className:'flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400'}, 'Cancel')
+        )
+      )
+    )
+  );
+};
+
+ReactDOM.render(e(App), document.getElementById('root'));
+</script>
+</body>
+</html>
